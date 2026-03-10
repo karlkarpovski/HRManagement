@@ -7,6 +7,12 @@
   pointer-events: none;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap');
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
