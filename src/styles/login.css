@@ -1,0 +1,128 @@
+/* login.css - Login Page Styles */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  padding: 20px;
+}
+
+.login-box {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-box h1 {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  color: var(--text-primary);
+  text-align: center;
+  font-weight: 700;
+}
+
+.login-box p {
+  margin: 0 0 30px 0;
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 14px;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  border-left: 4px solid #dc2626;
+}
+
+.login-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #2b6aac;
+  transform: translateY(-2px);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.login-footer p {
+  margin: 8px 0;
+}
+
+.login-footer strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 25px;
+  }
+
+  .login-box h1 {
+    font-size: 24px;
+  }
+}
