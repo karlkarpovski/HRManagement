@@ -1,0 +1,218 @@
+/* pages.css - shared page styles */
+
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 8px 28px;
+}
+
+.page-section {
+  position: relative;
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.page-section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(to right, var(--border-color), transparent);
+}
+
+.departments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.department-card {
+  cursor: pointer;
+}
+
+.dept-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dept-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.edit-btn {
+  background: #f2f7fb;
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.dept-info {
+  margin-bottom: 12px;
+}
+
+.dept-info p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.dept-info strong {
+  color: var(--text-primary);
+}
+
+.dept-employees {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dept-employees ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+.dept-employees li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+}
+
+.stats-row,
+.payroll-summary,
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.stat-box,
+.summary-box,
+.summary-item {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+}
+
+.stat-label,
+.summary-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.stat-value,
+.summary-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.summary-value.bonus {
+  color: var(--success-color);
+}
+
+.summary-value.penalty {
+  color: var(--danger-color);
+}
+
+.attendance-form,
+.payroll-controls,
+.report-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.report-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chart-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.item-label strong {
+  color: var(--text-primary);
+}
+
+.item-count {
+  color: var(--text-secondary);
+}
+
+.bar-bg {
+  width: 100%;
+  background: #edf3f8;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 18px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.summary-table {
+  overflow-x: auto;
+}
+
+.summary-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.summary-table th,
+.summary-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+}
+
+.summary-table th {
+  color: var(--text-secondary);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 0 0 18px;
+  }
+}

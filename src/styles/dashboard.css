@@ -1,0 +1,55 @@
+/* dashboard.css - dashboard template page */
+
+.dashboard-template {
+  border: 1px solid #dce6ee;
+  border-radius: 14px;
+  background: #f3f8fb;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  color: #1a2a38;
+}
+
+.dashboard-template-dark {
+  background: #111b24;
+  border-color: #243040;
+  color: #d4e6f4;
+}
+
+.dashboard-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+}
+
+.dashboard-grid-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.dashboard-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dashboard-modal-content {
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 28px;
+  width: min(96%, 700px);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid-2,
+  .dashboard-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
