@@ -1,0 +1,3 @@
+import bcrypt
+
+print(bcrypt.hashpw("123456".encode(), bcrypt.gensalt()).decode())

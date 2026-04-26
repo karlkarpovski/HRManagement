@@ -1,4 +1,5 @@
-import { useState, useCallback, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -75,15 +76,6 @@ const positionDist = [
   { name: 'Senior', value: 28, color: '#f0c040' },
   { name: 'Mid-Level', value: 42, color: '#3cbaba' },
   { name: 'Junior', value: 30, color: '#2a7a8c' },
-];
-
-const employees = [
-  { id: 1, name: 'Marshall Nichols', role: 'UI/UX Designer', dept: 'Design', perf: 'Good', sync: true },
-  { id: 2, name: 'Susie Willis', role: 'Designer', dept: 'Design', perf: 'Average', sync: true },
-  { id: 3, name: 'Francisco Vasquez', role: 'Team Leader', dept: 'Engineering', perf: 'Excellent', sync: false },
-  { id: 4, name: 'Elena Morozova', role: 'Backend Engineer', dept: 'Engineering', perf: 'Excellent', sync: true },
-  { id: 5, name: 'David Kim', role: 'Marketing Manager', dept: 'Marketing', perf: 'Good', sync: true },
-  { id: 6, name: 'Aisha Patel', role: 'Sales Executive', dept: 'Sales', perf: 'Average', sync: false },
 ];
 
 const notifications = [
@@ -237,6 +229,28 @@ const LINE_COLORS = ['#3cbaba', '#f0c040', '#2a7a8c', '#8ecfcf', '#f08040'];
 const BAR_COLORS = ['#2a7a8c', '#3cbaba', '#f0c040'];
 
 function DashboardPage() {
+  console.log("🔥 DashboardPage render");
+  const [employees, setEmployees] = useState([]);
+  useEffect(() => {
+  axios.get('http://127.0.0.1:5000/api/employees')
+    .then(res => {
+      console.log("DATA:", res.data);
+
+      const mapped = res.data.map(e => ({
+        id: e.EmployeeID,
+        name: e.FullName,
+        role: "Employee",
+        dept: "Dept " + e.DepartmentID,
+        perf: "Good",
+        sync: true
+      }));
+
+      console.log("MAPPED:", mapped);
+
+      setEmployees(mapped);
+    })
+    .catch(err => console.log(err));
+  }, []);
   const { dark, toggle } = useTheme();
   const [search, setSearch] = useState('');
   const [empModal, setEmpModal] = useState(false);
