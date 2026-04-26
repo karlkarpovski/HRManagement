@@ -1,0 +1,7 @@
+node_modules/
+.venv/
+venv/
+.cache/
+*.pack
+Frontend/node_modules/
+Backend/__pycache__/
