@@ -15,6 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useEmployeesRealtime } from '../data/employeesRealtimeStore';
 import '../styles/dashboard.css';
 
 const ThemeContext = createContext();
@@ -118,6 +119,27 @@ const formatBirthdayDate = (rawDate) => {
     month: 'short',
     day: 'numeric',
   });
+};
+
+const buildBirthdayMessage = (name, rawDate) => {
+  const birthday = parseBirthday(rawDate);
+  if (!birthday) {
+    return `Wishing ${name} a wonderful birthday.`;
+  }
+
+  const today = new Date();
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+  const birthdayThisYear = thisYearBirthday < todayMidnight ? new Date(today.getFullYear() + 1, birthday.getMonth(), birthday.getDate()) : thisYearBirthday;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const daysUntil = Math.round((birthdayThisYear - todayMidnight) / oneDay);
+  const age = birthdayThisYear.getFullYear() - birthday.getFullYear();
+
+  if (daysUntil === 0) {
+    return `Happy Birthday, ${name}! Turning ${age} today.`;
+  }
+
+  return `Birthday on ${birthdayThisYear.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}.`;
 };
 
 const getUpcomingBirthdayDetails = (rawDate) => {
@@ -290,31 +312,47 @@ function CustomTooltip({ active, payload, label, dark }) {
 const LINE_COLORS = ['#3cbaba', '#f0c040', '#2a7a8c', '#8ecfcf', '#f08040'];
 const BAR_COLORS = ['#2a7a8c', '#3cbaba', '#f0c040'];
 
+const mapStoreEmployeeToDashboard = (employee) => ({
+  id: employee.id,
+  name: employee.name,
+  role: employee.position || 'Employee',
+  dept: employee.department || 'General',
+  birthday: employee.dob || null,
+  perf: 'Good',
+  sync: true,
+});
+
+const mapEmployee = (employee) => ({
+  id: employee.EmployeeID,
+  name: employee.FullName,
+  department: `Dept ${employee.DepartmentID}`,
+  position: employee.PositionName || `Position ${employee.PositionID || ''}`.trim(),
+  dob: employee.DateOfBirth || employee.BirthDate || employee.DOB || null,
+  status: employee.Status || 'Active',
+  salary: Number(employee.Salary || 0),
+});
+
 function DashboardPage() {
   console.log("🔥 DashboardPage render");
-  const [employees, setEmployees] = useState([]);
+  const [sharedEmployees, setSharedEmployees] = useEmployeesRealtime();
+  const employees = useMemo(() => sharedEmployees.map(mapStoreEmployeeToDashboard), [sharedEmployees]);
   const [now, setNow] = useState(new Date());
   useEffect(() => {
-  axios.get('http://127.0.0.1:5000/api/employees')
-    .then(res => {
-      console.log("DATA:", res.data);
+    axios
+      .get('http://127.0.0.1:5000/api/employees')
+      .then((res) => {
+        console.log('DATA:', res.data);
 
-      const mapped = res.data.map(e => ({
-        id: e.EmployeeID,
-        name: e.FullName,
-        role: "Employee",
-        dept: "Dept " + e.DepartmentID,
-        birthday: e.DateOfBirth || e.BirthDate || e.DOB || null,
-        perf: "Good",
-        sync: true
-      }));
-
-      console.log("MAPPED:", mapped);
-
-      setEmployees(mapped);
-    })
-    .catch(err => console.log(err));
-  }, []);
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map(mapEmployee);
+          console.log('MAPPED:', mapped);
+          setSharedEmployees(mapped);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [setSharedEmployees]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -359,7 +397,7 @@ function DashboardPage() {
         .map((employee) => ({
           id: `birthday-${employee.id}`,
           text: `${employee.name} - Birthday Today`,
-          sub: `Send wishes (${formatBirthdayDate(employee.birthday)})`,
+          sub: buildBirthdayMessage(employee.name, employee.birthday),
           done: false,
         })),
     [employees]
@@ -560,7 +598,7 @@ function DashboardPage() {
                         <div style={{ fontSize: 11.5, fontWeight: 700, color: '#3cbaba' }}>
                           {employee.daysUntil === 0 ? 'Today' : `In ${employee.daysUntil} day${employee.daysUntil > 1 ? 's' : ''}`}
                         </div>
-                        <div style={{ fontSize: 10.5, color: muted, marginTop: 2 }}>{employee.label}</div>
+                        <div style={{ fontSize: 10.5, color: muted, marginTop: 2 }}>{buildBirthdayMessage(employee.name, employee.birthday)}</div>
                       </div>
                     </div>
                   ))

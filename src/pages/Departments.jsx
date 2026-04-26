@@ -3,93 +3,14 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
+import { useEmployeesRealtime } from '../data/employeesRealtimeStore';
+import { useDepartmentsRealtime } from '../data/departmentsRealtimeStore';
 import '../styles/pages.css';
 
 const Departments = () => {
-  const [departments, setDepartments] = useState([
-    { id: 1, name: 'IT', manager: 'Arjun Verma', employees: 12, budget: 500000 },
-    { id: 2, name: 'HR', manager: 'Priya Singh', employees: 8, budget: 200000 },
-    { id: 3, name: 'Finance', manager: 'Rajesh Patel', employees: 10, budget: 300000 },
-    { id: 4, name: 'Sales', manager: 'Vikas Kumar', employees: 15, budget: 400000 },
-  ]);
+  const [departments, setDepartments] = useDepartmentsRealtime();
 
-  const [employees] = useState([
-    {
-      id: 1,
-      employeeCode: 'EMP-001',
-      name: 'Anil Kumar',
-      department: 'IT',
-      position: 'Frontend Developer',
-      status: 'Active',
-      salary: 7800,
-      email: 'anil.kumar@hrm.local',
-      phone: '+91 98765 43210',
-      birthday: '1996-04-26',
-      joinDate: '2022-03-14',
-      address: 'Bengaluru, India',
-      emergencyContact: 'Ravi Kumar (+91 98700 11223)',
-    },
-    {
-      id: 2,
-      employeeCode: 'EMP-002',
-      name: 'Priya Singh',
-      department: 'HR',
-      position: 'HR Manager',
-      status: 'Active',
-      salary: 9200,
-      email: 'priya.singh@hrm.local',
-      phone: '+91 98111 22334',
-      birthday: '1992-09-18',
-      joinDate: '2020-07-01',
-      address: 'Delhi, India',
-      emergencyContact: 'Amit Singh (+91 98989 45454)',
-    },
-    {
-      id: 3,
-      employeeCode: 'EMP-003',
-      name: 'Rajesh Patel',
-      department: 'Finance',
-      position: 'Financial Analyst',
-      status: 'Active',
-      salary: 8300,
-      email: 'rajesh.patel@hrm.local',
-      phone: '+91 98222 33445',
-      birthday: '1994-12-04',
-      joinDate: '2021-11-10',
-      address: 'Ahmedabad, India',
-      emergencyContact: 'Meera Patel (+91 98670 11199)',
-    },
-    {
-      id: 4,
-      employeeCode: 'EMP-004',
-      name: 'Neha Sharma',
-      department: 'Sales',
-      position: 'Sales Executive',
-      status: 'Inactive',
-      salary: 6400,
-      email: 'neha.sharma@hrm.local',
-      phone: '+91 98333 44556',
-      birthday: '1997-02-21',
-      joinDate: '2023-01-16',
-      address: 'Pune, India',
-      emergencyContact: 'Vikas Sharma (+91 99555 88877)',
-    },
-    {
-      id: 5,
-      employeeCode: 'EMP-005',
-      name: 'Arjun Verma',
-      department: 'IT',
-      position: 'Tech Lead',
-      status: 'Active',
-      salary: 11800,
-      email: 'arjun.verma@hrm.local',
-      phone: '+91 98444 55667',
-      birthday: '1990-06-02',
-      joinDate: '2019-08-05',
-      address: 'Hyderabad, India',
-      emergencyContact: 'Shivani Verma (+91 90001 44422)',
-    },
-  ]);
+  const [employees] = useEmployeesRealtime();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEmployeeProfileOpen, setIsEmployeeProfileOpen] = useState(false);
@@ -138,7 +59,7 @@ const Departments = () => {
                 ...d,
                 name: formData.name,
                 manager: formData.manager,
-                budget: parseInt(formData.budget),
+                budget: parseInt(formData.budget, 10),
               }
             : d
         )
@@ -149,7 +70,7 @@ const Departments = () => {
         name: formData.name,
         manager: formData.manager,
         employees: 0,
-        budget: parseInt(formData.budget),
+        budget: parseInt(formData.budget, 10),
       };
       setDepartments([...departments, newDept]);
     }
