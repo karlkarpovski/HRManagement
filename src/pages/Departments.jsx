@@ -14,20 +14,99 @@ const Departments = () => {
   ]);
 
   const [employees] = useState([
-    { id: 1, name: 'Anil Kumar', department: 'IT' },
-    { id: 2, name: 'Priya Singh', department: 'HR' },
-    { id: 3, name: 'Rajesh Patel', department: 'Finance' },
-    { id: 4, name: 'Neha Sharma', department: 'Sales' },
-    { id: 5, name: 'Arjun Verma', department: 'IT' },
+    {
+      id: 1,
+      employeeCode: 'EMP-001',
+      name: 'Anil Kumar',
+      department: 'IT',
+      position: 'Frontend Developer',
+      status: 'Active',
+      salary: 7800,
+      email: 'anil.kumar@hrm.local',
+      phone: '+91 98765 43210',
+      birthday: '1996-04-26',
+      joinDate: '2022-03-14',
+      address: 'Bengaluru, India',
+      emergencyContact: 'Ravi Kumar (+91 98700 11223)',
+    },
+    {
+      id: 2,
+      employeeCode: 'EMP-002',
+      name: 'Priya Singh',
+      department: 'HR',
+      position: 'HR Manager',
+      status: 'Active',
+      salary: 9200,
+      email: 'priya.singh@hrm.local',
+      phone: '+91 98111 22334',
+      birthday: '1992-09-18',
+      joinDate: '2020-07-01',
+      address: 'Delhi, India',
+      emergencyContact: 'Amit Singh (+91 98989 45454)',
+    },
+    {
+      id: 3,
+      employeeCode: 'EMP-003',
+      name: 'Rajesh Patel',
+      department: 'Finance',
+      position: 'Financial Analyst',
+      status: 'Active',
+      salary: 8300,
+      email: 'rajesh.patel@hrm.local',
+      phone: '+91 98222 33445',
+      birthday: '1994-12-04',
+      joinDate: '2021-11-10',
+      address: 'Ahmedabad, India',
+      emergencyContact: 'Meera Patel (+91 98670 11199)',
+    },
+    {
+      id: 4,
+      employeeCode: 'EMP-004',
+      name: 'Neha Sharma',
+      department: 'Sales',
+      position: 'Sales Executive',
+      status: 'Inactive',
+      salary: 6400,
+      email: 'neha.sharma@hrm.local',
+      phone: '+91 98333 44556',
+      birthday: '1997-02-21',
+      joinDate: '2023-01-16',
+      address: 'Pune, India',
+      emergencyContact: 'Vikas Sharma (+91 99555 88877)',
+    },
+    {
+      id: 5,
+      employeeCode: 'EMP-005',
+      name: 'Arjun Verma',
+      department: 'IT',
+      position: 'Tech Lead',
+      status: 'Active',
+      salary: 11800,
+      email: 'arjun.verma@hrm.local',
+      phone: '+91 98444 55667',
+      birthday: '1990-06-02',
+      joinDate: '2019-08-05',
+      address: 'Hyderabad, India',
+      emergencyContact: 'Shivani Verma (+91 90001 44422)',
+    },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEmployeeProfileOpen, setIsEmployeeProfileOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     manager: '',
     budget: '',
   });
+
+  const formatCurrency = (amount) => `$ ${Number(amount || 0).toLocaleString()}`;
+
+  const openEmployeeProfile = (employee) => {
+    setSelectedEmployee(employee);
+    setIsEmployeeProfileOpen(true);
+  };
 
   const handleAddDepartment = () => {
     setSelectedDept(null);
@@ -161,7 +240,19 @@ const Departments = () => {
                 <strong>Staff:</strong>
                 <ul>
                   {deptEmployees.map((emp) => (
-                    <li key={emp.id}>{emp.name}</li>
+                    <li key={emp.id} className="dept-employee-item">
+                      <div>
+                        <span className="dept-employee-name">{emp.name}</span>
+                        <span className="dept-employee-meta">{emp.position}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="profile-btn"
+                        onClick={() => openEmployeeProfile(emp)}
+                      >
+                        Profile
+                      </button>
+                    </li>
                   ))}
                   {deptEmployees.length === 0 && <li>No employees</li>}
                 </ul>
@@ -233,6 +324,71 @@ const Departments = () => {
             )}
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={isEmployeeProfileOpen}
+        onClose={() => setIsEmployeeProfileOpen(false)}
+        title={selectedEmployee ? `${selectedEmployee.name} - Employee Profile` : 'Employee Profile'}
+      >
+        {selectedEmployee && (
+          <div className="employee-profile-container">
+            <div className="employee-profile-grid">
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Employee ID</span>
+                <span className="employee-profile-value">{selectedEmployee.employeeCode}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Department</span>
+                <span className="employee-profile-value">{selectedEmployee.department}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Position</span>
+                <span className="employee-profile-value">{selectedEmployee.position}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Status</span>
+                <span className="employee-profile-value">{selectedEmployee.status}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Salary</span>
+                <span className="employee-profile-value">{formatCurrency(selectedEmployee.salary)}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Date of Birth</span>
+                <span className="employee-profile-value">{new Date(selectedEmployee.birthday).toLocaleDateString()}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Joined On</span>
+                <span className="employee-profile-value">{new Date(selectedEmployee.joinDate).toLocaleDateString()}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Email</span>
+                <span className="employee-profile-value">{selectedEmployee.email}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Phone</span>
+                <span className="employee-profile-value">{selectedEmployee.phone}</span>
+              </div>
+              <div className="employee-profile-item employee-profile-item-full">
+                <span className="employee-profile-label">Address</span>
+                <span className="employee-profile-value">{selectedEmployee.address}</span>
+              </div>
+              <div className="employee-profile-item employee-profile-item-full">
+                <span className="employee-profile-label">Emergency Contact</span>
+                <span className="employee-profile-value">{selectedEmployee.emergencyContact}</span>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <Button
+                label="Close"
+                onClick={() => setIsEmployeeProfileOpen(false)}
+                variant="secondary"
+              />
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

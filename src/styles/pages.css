@@ -87,6 +87,76 @@
   padding: 4px 0;
 }
 
+.dept-employee-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dept-employee-name {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.dept-employee-meta {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.profile-btn {
+  border: 1px solid var(--border-color);
+  background: #f4f8fb;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.employee-profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.employee-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.employee-profile-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  background: #f9fcff;
+}
+
+.employee-profile-item-full {
+  grid-column: 1 / -1;
+}
+
+.employee-profile-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.employee-profile-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .stats-row,
 .payroll-summary,
 .summary-grid {

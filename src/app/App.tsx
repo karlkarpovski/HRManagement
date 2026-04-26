@@ -4,10 +4,12 @@ import Dashboard from '../pages/Dashboard';
 import Employees from '../pages/Employees';
 import Departments from '../pages/Departments';
 import Reports from '../pages/Reports';
+import Analytics from '../pages/Analytics.jsx';
 import '../App.css';
 
 export default function App() {
   const [activePage, setActivePage] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const renderPage = () => {
     switch (activePage) {
@@ -19,6 +21,8 @@ export default function App() {
         return <Departments />;
       case 'reports':
         return <Reports />;
+      case 'analytics':
+        return <Analytics />;
       default:
         return <Dashboard />;
     }
@@ -26,8 +30,15 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
-      <main className="main-content">{renderPage()}</main>
+      <Sidebar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+      />
+      <main className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        {renderPage()}
+      </main>
     </div>
   );
 }

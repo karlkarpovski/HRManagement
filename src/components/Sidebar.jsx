@@ -14,12 +14,14 @@ const NAV_GROUPS = [
   {
     label: 'Reports & Analytics',
     icon: 'CHRT',
-    items: [{ label: 'Reports', id: 'reports' }],
+    items: [
+      { label: 'Reports', id: 'reports' },
+      { label: 'Analytics', id: 'analytics' },
+    ],
   },
 ];
 
-const Sidebar = ({ activePage, setActivePage }) => {
-  const [isOpen, setIsOpen] = useState(true);
+const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
   const [openGroup, setOpenGroup] = useState('Employee Management');
 
   return (
@@ -28,7 +30,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
         <button className='toggle-btn' onClick={() => setIsOpen((current) => !current)}>
           MENU
         </button>
-        {isOpen && <h1>HRMS</h1>}
+        <h1 className={`sidebar-title ${isOpen ? 'visible' : ''}`}>HRMS</h1>
       </div>
 
       <div className='sidebar-menu'>
@@ -36,11 +38,12 @@ const Sidebar = ({ activePage, setActivePage }) => {
           <div key={group.label}>
             <button className='menu-item' onClick={() => setOpenGroup((current) => (current === group.label ? '' : group.label))}>
               <span className='icon'>{group.icon}</span>
-              {isOpen && <span className='label'>{group.label}</span>}
+              <span className='label'>{group.label}</span>
+              <span className={`group-arrow ${openGroup === group.label ? 'open' : ''}`}>▾</span>
             </button>
 
             {isOpen && openGroup === group.label && (
-              <div className='submenu'>
+              <div className='submenu open'>
                 {group.items.map((item) => (
                   <button
                     key={item.id}

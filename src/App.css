@@ -43,6 +43,15 @@ body,
   margin-left: 260px;
   overflow-y: auto;
   padding: 24px;
+  transition: margin-left 0.34s cubic-bezier(0.22, 1, 0.36, 1), padding 0.2s ease;
+}
+
+.main-content.sidebar-open {
+  margin-left: 260px;
+}
+
+.main-content.sidebar-closed {
+  margin-left: 80px;
 }
 
 ::-webkit-scrollbar {
@@ -67,11 +76,21 @@ body,
   .main-content {
     margin-left: 82px;
   }
+
+  .main-content.sidebar-open,
+  .main-content.sidebar-closed {
+    margin-left: 82px;
+  }
 }
 
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
     padding: 14px;
+  }
+
+  .main-content.sidebar-open,
+  .main-content.sidebar-closed {
+    margin-left: 0;
   }
 }
