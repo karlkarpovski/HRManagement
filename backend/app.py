@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import login.login as database
-from sqlalchemy import create_engine, text
+from login import verify_user  # Import the function directly
+from employees import get_all_employees, add_employee, delete_employee, get_employee_by_id
 import datetime
 
 from employees import get_all_employees, add_employee, get_all_employees, delete_employee, get_employee_by_id
@@ -25,7 +25,7 @@ def login():
             "message": "Vui lòng nhập đủ tài khoản và mật khẩu"
         }), 400
 
-    user = database.verify_user(username, password)
+    user = verify_user(username, password)
 
     if user:
         return jsonify({
@@ -34,7 +34,8 @@ def login():
             "user": {
                 "id": user['UserID'],
                 "username": user['Username'],
-                "fullname": user.get('FullName', user['Username'])
+                "fullname": user.get('FullName', user['Username']),
+                "role": user['RoleName']
             }
         }), 200
     else:

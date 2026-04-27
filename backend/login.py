@@ -1,17 +1,16 @@
 from sqlalchemy import create_engine, text
 import datetime
-from db import engine_auth, engine_human, log_to_auth
-import bcrypt
-
+from db import engine_auth, engine_human, engine_payroll
 import bcrypt
 from sqlalchemy import text
-from db import engine_auth
 
 def verify_user(username, password):
     query_user = text("""
-        SELECT UserID, Username, PasswordHash, EmployeeID
-        FROM Users
-        WHERE Username = :username
+        SELECT      Roles.RoleName, Users.Username, Users.PasswordHash, Users.EmployeeID, Users.UserID
+        FROM        Roles INNER JOIN
+                    User_Role ON Roles.RoleID = User_Role.RoleID INNER JOIN
+                    Users ON User_Role.UserID = Users.UserID
+        WHERE Username = :username 
     """)
 
     with engine_auth.connect() as conn:
@@ -21,12 +20,15 @@ def verify_user(username, password):
 
     if not user:
         return None
+    
+    stored_hash = user.PasswordHash
 
-    # check password
-    if not bcrypt.checkpw(password.encode('utf-8'), user.PasswordHash.encode('utf-8')):
+    if isinstance(stored_hash, str):
+        stored_hash = stored_hash.encode('utf-8')
+
+    if not bcrypt.checkpw(password.encode('utf-8'), stored_hash):
         return None
 
-    # 🔥 query DB HUMAN
     query_emp = text("""
         SELECT FullName
         FROM Employees
@@ -41,6 +43,7 @@ def verify_user(username, password):
     return {
         "UserID": user.UserID,
         "Username": user.Username,
+        "RoleName": user.RoleName,
         "FullName": emp.FullName if emp else ""
     }
 
@@ -52,3 +55,4 @@ def log_to_auth(user_id, action, endpoint, status):
             {"u": user_id, "a": action, "e": endpoint, "s": status, "t": datetime.datetime.now()}
         )
         conn.commit()
+        
