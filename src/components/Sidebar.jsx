@@ -21,7 +21,7 @@ const NAV_GROUPS = [
   },
 ];
 
-const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
+const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, onLogout }) => {
   const [openGroup, setOpenGroup] = useState('Employee Management');
 
   return (
@@ -64,6 +64,12 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
           <p>Template Mode</p>
           <p>v2.1.0</p>
         </div>
+
+        {onLogout && (
+          <button type='button' className='logout-btn' onClick={onLogout}>
+            Sign out
+          </button>
+        )}
       </div>
     </aside>
   );

@@ -5,6 +5,12 @@
 /.pnp
 .pnp.js
 
+# build output
+/dist
+
+# vite cache
+/node_modules/.vite
+
 # testing
 /coverage
 
