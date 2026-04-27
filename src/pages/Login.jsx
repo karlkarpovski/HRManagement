@@ -37,7 +37,7 @@ export default function Login({ onLoginSuccess }) {
     const normalizedUsername = username.trim().toLowerCase();
     if (normalizedUsername === selectedRole.username && password === selectedRole.password) {
       setError('');
-      onLoginSuccess?.();
+      onLoginSuccess?.(role);
       return;
     }
 
@@ -142,10 +142,12 @@ export default function Login({ onLoginSuccess }) {
 
           <div className='login-credentials'>
             <div>
-              <span>Username: {currentRole.username}</span>
+              <span>Username</span>
+              <strong>{currentRole.username}</strong>
             </div>
             <div>
-              <span>Password: {currentRole.password}</span>
+              <span>Password</span>
+              <strong>{currentRole.password}</strong>
             </div>
           </div>
 
