@@ -30,19 +30,41 @@ export default function Login({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    const selectedRole = AUTH_RULES[role] ?? AUTH_RULES[DEFAULT_ROLE];
-    const normalizedUsername = username.trim().toLowerCase();
-    if (normalizedUsername === selectedRole.username && password === selectedRole.password) {
+  try {
+    const response = await fetch('http://localhost:5000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
       setError('');
-      onLoginSuccess?.(role);
-      return;
+
+      // lưu user nếu cần
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // chuyển trang hoặc xử lý tiếp
+      onLoginSuccess?.(data.user);
+
+    } else {
+      setError(data.message);
     }
 
-    setError(`Invalid credentials for ${selectedRole.label}.`);
-  };
+  } catch (err) {
+    console.error(err);
+    setError('Không kết nối được server');
+  }
+};
 
   const currentRole = AUTH_RULES[role] ?? AUTH_RULES[DEFAULT_ROLE];
 
