@@ -9,12 +9,15 @@ import {
   LayoutGrid,
   LogOut,
   Menu,
+  Moon,
   ShieldCheck,
+  Sun,
   Wallet,
   UsersRound,
   ReceiptText,
   AlertTriangle,
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/payroll-dashboard.css';
 
 const quickStats = [
@@ -58,6 +61,7 @@ const statusTone = {
 
 export default function PayrollDashboard({ onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
   const navItems = useMemo(() => sectionNav, []);
 
   const jumpTo = (target) => {
@@ -102,6 +106,10 @@ export default function PayrollDashboard({ onLogout }) {
             <span>Active role</span>
             <strong>Payroll Manager</strong>
           </div>
+          <button type='button' className='payroll-theme-toggle' onClick={toggleTheme} title={isDark ? 'Light mode' : 'Dark mode'}>
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {isDark ? 'Light' : 'Dark'}
+          </button>
           {onLogout && (
             <button type='button' className='payroll-logout' onClick={onLogout}>
               <LogOut size={16} />

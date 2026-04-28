@@ -340,6 +340,10 @@
   color: var(--text-primary);
 }
 
+.login-credentials span {
+  color: var(--text-secondary);
+}
+
 @media (max-width: 960px) {
   .login-screen {
     padding: 18px;
@@ -367,4 +371,109 @@
   .login-hero h1 {
     max-width: 100%;
   }
+}
+
+/* Dark mode styles */
+.dark .login-screen {
+  background:
+    radial-gradient(circle at top left, rgba(60, 186, 186, 0.08), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(240, 192, 64, 0.06), transparent 28%),
+    linear-gradient(145deg, #0f1619 0%, #131d25 45%, #0d1820 100%);
+}
+
+.dark .login-screen::before {
+  background: rgba(42, 122, 140, 0.08);
+}
+
+.dark .login-screen::after {
+  background: rgba(60, 186, 186, 0.04);
+}
+
+.dark .login-card {
+  background: #1a2a35;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.48);
+}
+
+.dark .login-card-header h2 {
+  color: #e8f0f8;
+}
+
+.dark .login-card-header p {
+  color: #8ba3b8;
+}
+
+.dark .login-field span {
+  color: #c8dae8;
+}
+
+.dark .login-field input,
+.dark .login-field select {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(45, 61, 77, 0.6);
+  background-color: rgba(45, 61, 77, 0.6);
+  color: #e8f0f8;
+  -webkit-text-fill-color: #e8f0f8;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .login-field input:-webkit-autofill,
+.dark .login-field input:-webkit-autofill:hover,
+.dark .login-field input:-webkit-autofill:focus,
+.dark .login-field select:-webkit-autofill,
+.dark .login-field select:-webkit-autofill:hover,
+.dark .login-field select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e8f0f8;
+  box-shadow: 0 0 0 1000px rgba(45, 61, 77, 0.6) inset;
+  -webkit-box-shadow: 0 0 0 1000px rgba(45, 61, 77, 0.6) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.dark .login-field input::placeholder {
+  color: #7a95aa;
+}
+
+.dark .login-field input:focus,
+.dark .login-field select:focus {
+  border-color: #3cbaba;
+  box-shadow: 0 0 0 4px rgba(60, 186, 186, 0.24);
+}
+
+.dark .login-role-summary {
+  background: linear-gradient(180deg, rgba(60, 186, 186, 0.12), rgba(42, 122, 140, 0.08));
+  border-color: rgba(60, 186, 186, 0.2);
+}
+
+.dark .login-role-summary span {
+  color: #8ba3b8;
+}
+
+.dark .login-role-summary strong {
+  color: #e8f0f8;
+}
+
+.dark .login-role-summary p {
+  color: #8ba3b8;
+}
+
+.dark .login-error {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ff8a7b;
+}
+
+.dark .login-credentials > div {
+  background: rgba(45, 61, 77, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .login-credentials strong {
+  color: #e8f0f8;
+}
+
+.dark .login-credentials span {
+  color: #8ba3b8;
+}
+
+.dark .login-credentials {
+  border-top-color: rgba(255, 255, 255, 0.1);
 }

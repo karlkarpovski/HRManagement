@@ -124,6 +124,22 @@
   color: #fff;
 }
 
+.payroll-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.payroll-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .payroll-main {
   display: flex;
   flex-direction: column;
@@ -492,6 +508,229 @@
 
 .payroll-export-card svg {
   color: #2a7a8c;
+}
+
+/* Dark mode styles */
+.dark .payroll-dashboard-shell {
+  background: #0f1619;
+}
+
+.dark .payroll-rail {
+  background: linear-gradient(180deg, #1a2835 0%, #1e3a4f 100%);
+  border-color: rgba(60, 186, 186, 0.2);
+  color: #e7f3fa;
+}
+
+.dark .payroll-brand-mark {
+  background: linear-gradient(135deg, #3cbaba, #f0c040);
+  color: #0f1619;
+}
+
+.dark .payroll-nav-item,
+.dark .payroll-secondary-action {
+  background: rgba(255, 255, 255, 0.04);
+  color: #8ba3b8;
+}
+
+.dark .payroll-nav-item:hover,
+.dark .payroll-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .payroll-nav-item.active {
+  background: rgba(60, 186, 186, 0.18);
+  color: #3cbaba;
+}
+
+.dark .payroll-primary-action {
+  background: linear-gradient(135deg, #2a7a8c 0%, #3cbaba 100%);
+  color: #fff;
+}
+
+.dark .payroll-panel {
+  background: #1a2835;
+  border-color: rgba(60, 186, 186, 0.1);
+}
+
+.dark .payroll-hero {
+  background: linear-gradient(135deg, #1e3a4f 0%, #1a2835 100%);
+  color: #e8f0f8;
+}
+
+.dark .payroll-hero h1 {
+  color: #e8f0f8;
+}
+
+.dark .payroll-hero p {
+  color: #8ba3b8;
+}
+
+.dark .payroll-panel-header strong {
+  color: #e8f0f8;
+}
+
+.dark .payroll-panel-header h2 {
+  color: #e8f0f8;
+}
+
+.dark .payroll-kpi-card {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .payroll-kpi-card span,
+.dark .payroll-run-item span,
+.dark .payroll-alert-item span,
+.dark .payroll-alert-item p,
+.dark .payroll-run-summary span,
+.dark .payroll-export-card span {
+  color: #8ba3b8;
+}
+
+.dark .payroll-kpi-card strong,
+.dark .payroll-run-item strong,
+.dark .payroll-alert-item strong,
+.dark .payroll-export-card strong,
+.dark .payroll-history-table td,
+.dark .payroll-panel,
+.dark .payroll-main {
+  color: #e8f0f8;
+}
+
+.dark .payroll-metric-row div {
+  background: linear-gradient(180deg, #2a3d4f, #243040);
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .payroll-metric-row span {
+  color: #8ba3b8;
+}
+
+.dark .payroll-metric-row strong {
+  color: #e8f0f8;
+}
+
+.dark .payroll-history-table th,
+.dark .payroll-history-table td {
+  border-color: rgba(60, 186, 186, 0.1);
+}
+
+.dark .payroll-history-table th {
+  color: #8ba3b8;
+}
+
+.dark .payroll-history-table td {
+  color: #e8f0f8;
+}
+
+.dark .payroll-status.is-success {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+
+.dark .payroll-status.is-warning {
+  background: rgba(240, 192, 64, 0.18);
+  color: #fbbf24;
+}
+
+.dark .payroll-status.is-neutral {
+  background: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+}
+
+.dark .payroll-checklist li {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+  color: #e8f0f8;
+}
+
+.dark .payroll-run-item {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .payroll-alert-item,
+.dark .payroll-export-card {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .payroll-alert-item em,
+.dark .panel-link {
+  color: #3cbaba;
+}
+
+.dark .payroll-pill,
+.dark .payroll-panel-kicker {
+  background: rgba(60, 186, 186, 0.18);
+  color: #b8edf2;
+}
+
+.dark .payroll-panel input,
+.dark .payroll-panel textarea,
+.dark .payroll-panel select {
+  background: #2a3d4f;
+  background-color: #2a3d4f;
+  border: 1px solid rgba(60, 186, 186, 0.12);
+  color: #e8f0f8;
+  -webkit-text-fill-color: #e8f0f8;
+  caret-color: #e8f0f8;
+}
+
+.dark .payroll-panel input:-webkit-autofill,
+.dark .payroll-panel input:-webkit-autofill:hover,
+.dark .payroll-panel input:-webkit-autofill:focus,
+.dark .payroll-panel textarea:-webkit-autofill,
+.dark .payroll-panel textarea:-webkit-autofill:hover,
+.dark .payroll-panel textarea:-webkit-autofill:focus,
+.dark .payroll-panel select:-webkit-autofill,
+.dark .payroll-panel select:-webkit-autofill:hover,
+.dark .payroll-panel select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e8f0f8;
+  box-shadow: 0 0 0 1000px #2a3d4f inset;
+  -webkit-box-shadow: 0 0 0 1000px #2a3d4f inset;
+  caret-color: #e8f0f8;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.dark .payroll-panel input::placeholder,
+.dark .payroll-panel textarea::placeholder {
+  color: #8ba3b8;
+}
+
+.dark .payroll-panel input:focus,
+.dark .payroll-panel textarea:focus,
+.dark .payroll-panel select:focus {
+  outline: none;
+  border-color: #3cbaba;
+  box-shadow: 0 0 0 3px rgba(60, 186, 186, 0.16);
+}
+
+.dark .payroll-theme-toggle {
+  border-color: rgba(60, 186, 186, 0.2);
+  background: rgba(60, 186, 186, 0.08);
+  color: #e8f0f8;
+}
+
+.dark .payroll-theme-toggle:hover {
+  background: rgba(60, 186, 186, 0.12);
+}
+
+.dark .payroll-logout {
+  color: #8ba3b8;
+}
+
+.dark .payroll-logout:hover {
+  color: #e8f0f8;
+}
+
+.dark .payroll-export-card {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .payroll-export-card svg {
+  color: #3cbaba;
 }
 
 @media (max-width: 1180px) {

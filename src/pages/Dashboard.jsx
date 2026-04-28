@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import { Moon, Sun } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -15,35 +16,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useTheme } from '../contexts/ThemeContext';
 import { useEmployeesRealtime } from '../data/employeesRealtimeStore';
 import '../styles/dashboard.css';
-
-const ThemeContext = createContext();
-const useTheme = () => useContext(ThemeContext);
-
-function ThemeProvider({ children }) {
-  const [dark, setDark] = useState(() => {
-    try {
-      return localStorage.getItem('hrms-theme') === 'dark';
-    } catch {
-      return false;
-    }
-  });
-
-  const toggle = useCallback(() => {
-    setDark((current) => {
-      const next = !current;
-      try {
-        localStorage.setItem('hrms-theme', next ? 'dark' : 'light');
-      } catch {
-        // ignore storage errors
-      }
-      return next;
-    });
-  }, []);
-
-  return <ThemeContext.Provider value={{ dark, toggle }}>{children}</ThemeContext.Provider>;
-}
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -362,15 +337,15 @@ function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const { dark, toggle } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
   const [search, setSearch] = useState('');
   const [empModal, setEmpModal] = useState(false);
   const [todos, setTodos] = useState(defaultNotifications);
   const [searchFocused, setSearchFocused] = useState(false);
 
-  const text = dark ? '#d4e6f4' : '#1a2a38';
-  const muted = dark ? '#7a95aa' : '#8ca0af';
-  const border = dark ? '#243040' : '#e0eaf0';
+  const text = isDark ? '#d4e6f4' : '#1a2a38';
+  const muted = isDark ? '#7a95aa' : '#8ca0af';
+  const border = isDark ? '#243040' : '#e0eaf0';
   const accent = '#3cbaba';
   const nowDisplay = now.toLocaleString(undefined, {
     weekday: 'short',
@@ -450,8 +425,8 @@ function DashboardPage() {
   ];
 
   return (
-    <div className={dark ? 'dashboard-template dashboard-template-dark' : 'dashboard-template'}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px', background: dark ? '#162030' : '#fff', borderBottom: `1px solid ${border}` }}>
+    <div className={isDark ? 'dashboard-template dashboard-template-dark' : 'dashboard-template'}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px', background: isDark ? '#162030' : '#fff', borderBottom: `1px solid ${border}` }}>
         <div style={{ fontSize: 18, fontWeight: 800, color: text, letterSpacing: '-0.01em' }}>HR Dashboard</div>
         <div style={{ fontSize: 12, color: muted, marginRight: 'auto' }}>HRMS / Dashboard</div>
         <div style={{ fontSize: 12, color: muted, fontWeight: 600 }}>{nowDisplay}</div>
@@ -464,7 +439,7 @@ function DashboardPage() {
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
             style={{
-              background: dark ? '#1e2a35' : '#f0f6fa',
+              background: isDark ? '#1e2a35' : '#f0f6fa',
               border: `1px solid ${searchFocused ? accent : border}`,
               borderRadius: 8,
               padding: '7px 14px 7px 34px',
@@ -478,10 +453,10 @@ function DashboardPage() {
         </div>
 
         <button
-          onClick={toggle}
+          onClick={toggleTheme}
           title='Toggle theme'
           style={{
-            background: dark ? '#243040' : '#eaf7f7',
+            background: isDark ? '#243040' : '#eaf7f7',
             border: `1px solid ${border}`,
             borderRadius: 8,
             padding: '7px 12px',
@@ -491,19 +466,19 @@ function DashboardPage() {
             fontWeight: 700,
           }}
         >
-          {dark ? 'LIGHT' : 'DARK'}
+          {isDark ? 'LIGHT' : 'DARK'}
         </button>
       </div>
 
       <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
           {statsData.map((item) => (
-            <StatCard key={item.label} dark={dark} {...item} />
+            <StatCard key={item.label} dark={isDark} {...item} />
           ))}
         </div>
 
         <div className='dashboard-grid-2'>
-          <Block dark={dark} title='Salary Expenditure by Dept'>
+          <Block dark={isDark} title='Salary Expenditure by Dept'>
             <ResponsiveContainer width='100%' height={210}>
               <PieChart>
                 <Pie data={salaryPie} cx='50%' cy='50%' innerRadius={0} outerRadius={80} dataKey='value' label={({ name, value }) => `${name}: ${value}%`} labelLine={false} fontSize={10}>
@@ -511,18 +486,18 @@ function DashboardPage() {
                     <Cell key={e.name} fill={e.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v) => `${v}%`} contentStyle={{ background: dark ? '#162030' : '#fff', border: `1px solid ${border}`, borderRadius: 8, fontSize: 12 }} />
+                <Tooltip formatter={(v) => `${v}%`} contentStyle={{ background: isDark ? '#162030' : '#fff', border: `1px solid ${border}`, borderRadius: 8, fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </Block>
 
-          <Block dark={dark} title='Headcount by Dept & Position (Quarterly)'>
+          <Block dark={isDark} title='Headcount by Dept & Position (Quarterly)'>
             <ResponsiveContainer width='100%' height={230}>
               <BarChart data={headcountByDept} barSize={22}>
-                <CartesianGrid strokeDasharray='3 3' stroke={dark ? '#243040' : '#eaf0f4'} />
+                <CartesianGrid strokeDasharray='3 3' stroke={isDark ? '#243040' : '#eaf0f4'} />
                 <XAxis dataKey='quarter' tick={{ fontSize: 11, fill: muted }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: muted }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip dark={dark} />} />
+                <Tooltip content={<CustomTooltip dark={isDark} />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 {['Engineering', 'Marketing', 'Sales'].map((k, i) => (
                   <Bar key={k} dataKey={k} stackId='a' fill={BAR_COLORS[i]} radius={i === 2 ? [3, 3, 0, 0] : [0, 0, 0, 0]} />
@@ -533,13 +508,13 @@ function DashboardPage() {
         </div>
 
         <div className='dashboard-grid-3'>
-          <Block dark={dark} title='Total Salary by Unit - Historic Trends'>
+          <Block dark={isDark} title='Total Salary by Unit - Historic Trends'>
             <ResponsiveContainer width='100%' height={220}>
               <LineChart data={salaryByUnit}>
-                <CartesianGrid strokeDasharray='3 3' stroke={dark ? '#243040' : '#eaf0f4'} />
+                <CartesianGrid strokeDasharray='3 3' stroke={isDark ? '#243040' : '#eaf0f4'} />
                 <XAxis dataKey='month' tick={{ fontSize: 11, fill: muted }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: muted }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip dark={dark} />} />
+                <Tooltip content={<CustomTooltip dark={isDark} />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 {['Engineering', 'Marketing', 'Design', 'Support', 'Operations'].map((k, i) => (
                   <Line key={k} type='monotone' dataKey={k} stroke={LINE_COLORS[i]} strokeWidth={2} dot={false} />
@@ -549,7 +524,7 @@ function DashboardPage() {
           </Block>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Block dark={dark} title='Notifications & Alerts' style={{ flex: 1 }}>
+            <Block dark={isDark} title='Notifications & Alerts' style={{ flex: 1 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {todos.map((n) => (
                   <div key={n.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, opacity: n.done ? 0.45 : 1 }}>
@@ -574,7 +549,7 @@ function DashboardPage() {
               </div>
             </Block>
 
-            <Block dark={dark} title='Upcoming Birthdays (Next 7 Days)'>
+            <Block dark={isDark} title='Upcoming Birthdays (Next 7 Days)'>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {upcomingBirthdays.length > 0 ? (
                   upcomingBirthdays.map((employee) => (
@@ -587,7 +562,7 @@ function DashboardPage() {
                         border: `1px solid ${border}`,
                         borderRadius: 8,
                         padding: '10px 12px',
-                        background: dark ? '#1a2838' : '#f8fbfc',
+                        background: isDark ? '#1a2838' : '#f8fbfc',
                       }}
                     >
                       <div>
@@ -608,15 +583,15 @@ function DashboardPage() {
               </div>
             </Block>
 
-            <Block dark={dark} title='Employee Distribution by Position'>
-              <ResponsiveContainer width='100%' height={130}>
+            <Block dark={isDark} title='Employee Distribution by Position'>
+              <ResponsiveContainer width='100%' height={240}>
                 <PieChart>
-                  <Pie data={positionDist} cx='50%' cy='50%' innerRadius={38} outerRadius={58} dataKey='value' startAngle={90} endAngle={-270}>
+                  <Pie data={positionDist} cx='50%' cy='50%' innerRadius={0} outerRadius={80} dataKey='value' label={({ name, value }) => `${name}: ${value}`} labelLine={false} fontSize={10}>
                     {positionDist.map((e) => (
                       <Cell key={e.name} fill={e.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => `${v}%`} contentStyle={{ background: dark ? '#162030' : '#fff', border: `1px solid ${border}`, borderRadius: 8, fontSize: 12 }} />
+                  <Tooltip formatter={(v) => `${v}%`} contentStyle={{ background: isDark ? '#162030' : '#fff', border: `1px solid ${border}`, borderRadius: 8, fontSize: 12 }} />
                 </PieChart>
               </ResponsiveContainer>
             </Block>
@@ -624,7 +599,7 @@ function DashboardPage() {
         </div>
 
         <Block
-          dark={dark}
+          dark={isDark}
           title={`Employee List ${filtered.length < employees.length ? `(${filtered.length} results)` : `- ${employees.length} total`}`}
           action={
             <button onClick={() => setEmpModal(true)} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
@@ -645,9 +620,9 @@ function DashboardPage() {
               </thead>
               <tbody>
                 {filtered.map((e, i) => {
-                  const pc = dark ? perfColorDark(e.perf) : perfColor(e.perf);
+                  const pc = isDark ? perfColorDark(e.perf) : perfColor(e.perf);
                   return (
-                    <tr key={e.id} style={{ borderBottom: `1px solid ${border}`, background: i % 2 === 1 ? (dark ? '#1a2838' : '#f8fbfc') : 'transparent' }}>
+                    <tr key={e.id} style={{ borderBottom: `1px solid ${border}`, background: i % 2 === 1 ? (isDark ? '#1a2838' : '#f8fbfc') : 'transparent' }}>
                       <td style={{ padding: '10px 12px' }}><Avatar name={e.name} size={30} /></td>
                       <td style={{ padding: '10px 12px', fontWeight: 600, color: text }}>{e.name}</td>
                       <td style={{ padding: '10px 12px', color: muted }}>{e.role}</td>
@@ -665,7 +640,7 @@ function DashboardPage() {
 
       {empModal && (
         <div className='dashboard-modal-overlay' onClick={() => setEmpModal(false)}>
-          <div className='dashboard-modal-content' style={{ background: dark ? '#162030' : '#fff', borderColor: border }} onClick={(e) => e.stopPropagation()}>
+          <div className='dashboard-modal-content' style={{ background: isDark ? '#162030' : '#fff', borderColor: border }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
               <span style={{ fontSize: 17, fontWeight: 800, color: text }}>Full Employee List</span>
               <button onClick={() => setEmpModal(false)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: muted }}>X</button>
@@ -674,7 +649,7 @@ function DashboardPage() {
               placeholder='Search by name, role, or department...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', background: dark ? '#1e2a35' : '#f0f6fa', border: `1px solid ${border}`, borderRadius: 8, padding: '9px 14px', fontSize: 13, color: text, marginBottom: 16, boxSizing: 'border-box' }}
+              style={{ width: '100%', background: isDark ? '#1e2a35' : '#f0f6fa', border: `1px solid ${border}`, borderRadius: 8, padding: '9px 14px', fontSize: 13, color: text, marginBottom: 16, boxSizing: 'border-box' }}
             />
           </div>
         </div>
@@ -684,9 +659,5 @@ function DashboardPage() {
 }
 
 export default function Dashboard() {
-  return (
-    <ThemeProvider>
-      <DashboardPage />
-    </ThemeProvider>
-  );
+  return <DashboardPage />;
 }

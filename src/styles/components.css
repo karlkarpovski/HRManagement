@@ -436,6 +436,160 @@
   font-size: 14px;
 }
 
+/* Dark mode overrides for shared components used by management pages */
+.dark .btn-secondary {
+  background-color: #2a3d4f;
+  color: #e8f0f8;
+  border: 1px solid rgba(60, 186, 186, 0.2);
+}
+
+.dark .btn-secondary:hover:not(:disabled) {
+  background-color: #33495d;
+}
+
+.dark .table-container {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.dark .table {
+  background-color: #1f2f3f;
+  color: #e8f0f8;
+}
+
+.dark .table thead {
+  background: linear-gradient(135deg, rgba(60, 186, 186, 0.12), rgba(42, 122, 140, 0.14));
+  border-bottom-color: rgba(60, 186, 186, 0.35);
+}
+
+.dark .table th {
+  color: #9bb3c7;
+}
+
+.dark .table td {
+  border-bottom-color: rgba(60, 186, 186, 0.14);
+  color: #e8f0f8;
+}
+
+.dark .table tbody tr:hover,
+.dark .table-row:hover {
+  background-color: #2a3d4f;
+}
+
+.dark .text-center {
+  color: #9bb3c7;
+}
+
+.dark .card {
+  background-color: #1a2835;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+}
+
+.dark .card-header {
+  background: linear-gradient(135deg, rgba(60, 186, 186, 0.12), rgba(42, 122, 140, 0.1));
+  border-bottom-color: rgba(60, 186, 186, 0.16);
+  color: #e8f0f8;
+}
+
+.dark .modal-content {
+  background-color: #1b2a37;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+}
+
+.dark .modal-header {
+  border-bottom-color: rgba(60, 186, 186, 0.16);
+}
+
+.dark .modal-header h2,
+.dark .modal-close:hover {
+  color: #e8f0f8;
+}
+
+.dark .modal-close {
+  color: #8ba3b8;
+}
+
+.dark .stats-card {
+  background: #1f2f3f;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.dark .stats-card::before {
+  background: linear-gradient(135deg, rgba(60, 186, 186, 0.1), rgba(42, 122, 140, 0.14));
+}
+
+.dark .stats-content h3 {
+  color: #9bb3c7;
+}
+
+.dark .stats-value {
+  color: #e8f0f8;
+}
+
+.dark .page-header {
+  background: linear-gradient(135deg, rgba(60, 186, 186, 0.14), rgba(42, 122, 140, 0.12));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.dark .header-content h1 {
+  color: #e8f0f8;
+}
+
+.dark .header-content p {
+  color: #9bb3c7;
+}
+
+.dark .form-group label {
+  color: #c8dae8;
+}
+
+.dark .form-group input,
+.dark .form-group select,
+.dark .form-group textarea,
+.dark .form-control,
+.dark .filter-input,
+.dark .filter-select {
+  background-color: #2a3d4f;
+  border-color: rgba(60, 186, 186, 0.16);
+  color: #e8f0f8;
+  -webkit-text-fill-color: #e8f0f8;
+  caret-color: #e8f0f8;
+}
+
+.dark .form-group input:hover,
+.dark .form-group select:hover,
+.dark .form-group textarea:hover {
+  border-color: rgba(60, 186, 186, 0.28);
+  background-color: #32485c;
+}
+
+.dark .form-group input:focus,
+.dark .form-group select:focus,
+.dark .form-group textarea:focus {
+  background-color: #2a3d4f;
+  border-color: #3cbaba;
+  box-shadow: 0 0 0 3px rgba(60, 186, 186, 0.18);
+}
+
+.dark .form-group input:disabled {
+  background-color: #223241;
+}
+
+.dark .form-group input:-webkit-autofill,
+.dark .form-group input:-webkit-autofill:hover,
+.dark .form-group input:-webkit-autofill:focus,
+.dark .form-group textarea:-webkit-autofill,
+.dark .form-group textarea:-webkit-autofill:hover,
+.dark .form-group textarea:-webkit-autofill:focus,
+.dark .form-group select:-webkit-autofill,
+.dark .form-group select:-webkit-autofill:hover,
+.dark .form-group select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e8f0f8;
+  box-shadow: 0 0 0 1000px #2a3d4f inset;
+  -webkit-box-shadow: 0 0 0 1000px #2a3d4f inset;
+  caret-color: #e8f0f8;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .stats-grid {

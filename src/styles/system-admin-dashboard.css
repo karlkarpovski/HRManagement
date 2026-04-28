@@ -125,6 +125,22 @@
   color: #fff;
 }
 
+.system-admin-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.system-admin-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .system-admin-main {
   display: flex;
   flex-direction: column;
@@ -420,6 +436,233 @@
   border-radius: 16px;
   background: linear-gradient(180deg, #f5f9fb, #edf5f8);
   color: #234055;
+}
+
+/* Dark mode styles */
+.dark .system-admin-shell {
+  background: #0f1619;
+}
+
+.dark .system-admin-rail {
+  background: linear-gradient(180deg, #1a2835 0%, #1e3a4f 100%);
+  border-color: rgba(60, 186, 186, 0.2);
+  color: #e7f3fa;
+}
+
+.dark .system-admin-brand-mark {
+  background: linear-gradient(135deg, #3cbaba, #f0c040);
+  color: #0f1619;
+}
+
+.dark .system-admin-nav-item,
+.dark .system-admin-secondary-action {
+  background: rgba(255, 255, 255, 0.04);
+  color: #8ba3b8;
+}
+
+.dark .system-admin-nav-item:hover,
+.dark .system-admin-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .system-admin-nav-item.active {
+  background: rgba(60, 186, 186, 0.18);
+  color: #3cbaba;
+}
+
+.dark .system-admin-primary-action {
+  background: linear-gradient(135deg, #2a7a8c 0%, #3cbaba 100%);
+  color: #fff;
+}
+
+.dark .system-admin-panel {
+  background: #1a2835;
+  border-color: rgba(60, 186, 186, 0.1);
+}
+
+.dark .system-admin-hero {
+  background: linear-gradient(135deg, #1e3a4f 0%, #1a2835 100%);
+  color: #e8f0f8;
+}
+
+.dark .system-admin-hero h1 {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-hero p {
+  color: #8ba3b8;
+}
+
+.dark .system-admin-panel-header strong {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-panel-header h2 {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-kpi-card {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .system-admin-kpi-card span,
+.dark .system-admin-user-copy span,
+.dark .system-admin-user-copy p,
+.dark .system-admin-health-card span,
+.dark .system-admin-alert-item span {
+  color: #8ba3b8;
+}
+
+.dark .system-admin-kpi-card strong,
+.dark .system-admin-user-copy strong,
+.dark .system-admin-permission-card strong,
+.dark .system-admin-health-card strong,
+.dark .system-admin-panel,
+.dark .system-admin-main {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-metrics-row div {
+  background: linear-gradient(180deg, #2a3d4f, #243040);
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .system-admin-metrics-row span {
+  color: #8ba3b8;
+}
+
+.dark .system-admin-metrics-row strong {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-user-card,
+.dark .system-admin-permission-card,
+.dark .system-admin-health-card,
+.dark .system-admin-alert-item {
+  background: #243040;
+  border-color: rgba(60, 186, 186, 0.12);
+}
+
+.dark .system-admin-user-copy strong,
+.dark .system-admin-permission-card strong,
+.dark .system-admin-health-card strong {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-user-copy span,
+.dark .system-admin-user-copy p,
+.dark .system-admin-health-card span,
+.dark .system-admin-alert-item span {
+  color: #8ba3b8;
+}
+
+.dark .system-admin-user-copy p {
+  color: #3cbaba;
+}
+
+.dark .system-admin-user-avatar {
+  background: rgba(60, 186, 186, 0.18);
+  color: #3cbaba;
+}
+
+.dark .system-admin-inline-action {
+  background: rgba(60, 186, 186, 0.16);
+  color: #a8d8e0;
+}
+
+.dark .system-admin-chip {
+  background: rgba(60, 186, 186, 0.16);
+  color: #6ee7b7;
+}
+
+.dark .system-admin-theme-toggle {
+  border-color: rgba(60, 186, 186, 0.2);
+  background: rgba(60, 186, 186, 0.08);
+  color: #e8f0f8;
+}
+
+.dark .system-admin-theme-toggle:hover {
+  background: rgba(60, 186, 186, 0.12);
+}
+
+.dark .system-admin-logout {
+  color: #8ba3b8;
+}
+
+.dark .system-admin-logout:hover {
+  color: #e8f0f8;
+}
+
+.dark .system-admin-status.is-success {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+
+.dark .system-admin-status.is-warning {
+  background: rgba(240, 192, 64, 0.18);
+  color: #fbbf24;
+}
+
+.dark .system-admin-status.is-neutral {
+  background: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+}
+
+.dark .system-admin-metrics-row div {
+  background: linear-gradient(180deg, #2a3d4f, #243040);
+  border-color: rgba(60, 186, 186, 0.12);
+  color: #e8f0f8;
+}
+
+.dark .panel-link {
+  color: #3cbaba;
+}
+
+.dark .system-admin-pill,
+.dark .system-admin-panel-kicker {
+  background: rgba(60, 186, 186, 0.18);
+  color: #b8edf2;
+}
+
+.dark .system-admin-panel input,
+.dark .system-admin-panel textarea,
+.dark .system-admin-panel select {
+  background: #2a3d4f;
+  background-color: #2a3d4f;
+  border: 1px solid rgba(60, 186, 186, 0.12);
+  color: #e8f0f8;
+  -webkit-text-fill-color: #e8f0f8;
+  caret-color: #e8f0f8;
+}
+
+.dark .system-admin-panel input:-webkit-autofill,
+.dark .system-admin-panel input:-webkit-autofill:hover,
+.dark .system-admin-panel input:-webkit-autofill:focus,
+.dark .system-admin-panel textarea:-webkit-autofill,
+.dark .system-admin-panel textarea:-webkit-autofill:hover,
+.dark .system-admin-panel textarea:-webkit-autofill:focus,
+.dark .system-admin-panel select:-webkit-autofill,
+.dark .system-admin-panel select:-webkit-autofill:hover,
+.dark .system-admin-panel select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e8f0f8;
+  box-shadow: 0 0 0 1000px #2a3d4f inset;
+  -webkit-box-shadow: 0 0 0 1000px #2a3d4f inset;
+  caret-color: #e8f0f8;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.dark .system-admin-panel input::placeholder,
+.dark .system-admin-panel textarea::placeholder {
+  color: #8ba3b8;
+}
+
+.dark .system-admin-panel input:focus,
+.dark .system-admin-panel textarea:focus,
+.dark .system-admin-panel select:focus {
+  outline: none;
+  border-color: #3cbaba;
+  box-shadow: 0 0 0 3px rgba(60, 186, 186, 0.16);
 }
 
 @media (max-width: 1180px) {

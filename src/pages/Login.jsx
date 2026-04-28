@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/login.css';
 
 const AUTH_RULES = {
@@ -35,6 +37,7 @@ export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { isDark, toggleTheme } = useTheme();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -101,8 +104,32 @@ export default function Login({ onLoginSuccess }) {
 
         <section className='login-card'>
           <div className='login-card-header'>
-            <span className='login-pill'>Protected access</span>
-            <h2>Sign in to continue</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <div>
+                <span className='login-pill'>Protected access</span>
+                <h2>Sign in to continue</h2>
+              </div>
+              <button
+                type='button'
+                onClick={toggleTheme}
+                title={isDark ? 'Light mode' : 'Dark mode'}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(105, 130, 149, 0.16)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  color: 'inherit',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </div>
             <p>Select your role, then enter the corresponding credentials.</p>
           </div>
 

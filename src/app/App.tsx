@@ -9,6 +9,7 @@ import Employees from '../pages/Employees';
 import Departments from '../pages/Departments';
 import Reports from '../pages/Reports';
 import Analytics from '../pages/Analytics.jsx';
+import { ThemeProvider } from '../contexts/ThemeContext';
 import '../App.css';
 
 const AUTH_STORAGE_KEY = 'hrms-authenticated';
@@ -83,19 +84,35 @@ export default function App() {
   };
 
   if (!isAuthenticated) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <ThemeProvider>
+        <Login onLoginSuccess={handleLoginSuccess} />
+      </ThemeProvider>
+    );
   }
 
   if (userRole === 'employee') {
-    return <EmployeeDashboard onLogout={handleLogout} />;
+    return (
+      <ThemeProvider>
+        <EmployeeDashboard onLogout={handleLogout} />
+      </ThemeProvider>
+    );
   }
 
   if (userRole === 'payroll-manager') {
-    return <PayrollDashboard onLogout={handleLogout} />;
+    return (
+      <ThemeProvider>
+        <PayrollDashboard onLogout={handleLogout} />
+      </ThemeProvider>
+    );
   }
 
   if (userRole === 'system-admin') {
-    return <SystemAdminDashboard onLogout={handleLogout} />;
+    return (
+      <ThemeProvider>
+        <SystemAdminDashboard onLogout={handleLogout} />
+      </ThemeProvider>
+    );
   }
 
   const renderPage = () => {
@@ -116,17 +133,19 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
-      <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-        isOpen={isSidebarOpen}
-        setIsOpen={setIsSidebarOpen}
-        onLogout={handleLogout}
-      />
-      <main className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        {renderPage()}
-      </main>
-    </div>
+    <ThemeProvider>
+      <div className="app-container">
+        <Sidebar
+          activePage={activePage}
+          setActivePage={setActivePage}
+          isOpen={isSidebarOpen}
+          setIsOpen={setIsSidebarOpen}
+          onLogout={handleLogout}
+        />
+        <main className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+          {renderPage()}
+        </main>
+      </div>
+    </ThemeProvider>
   );
 }

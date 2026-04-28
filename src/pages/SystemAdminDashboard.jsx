@@ -9,7 +9,9 @@ import {
   LockKeyhole,
   LogOut,
   Menu,
+  Moon,
   ShieldCheck,
+  Sun,
   Users,
   UserCog,
   UserRoundPlus,
@@ -18,6 +20,7 @@ import {
   HardDriveDownload,
   FileClock,
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/system-admin-dashboard.css';
 
 const overviewStats = [
@@ -64,6 +67,7 @@ const navigation = [
 
 export default function SystemAdminDashboard({ onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
   const navItems = useMemo(() => navigation, []);
 
   const scrollToSection = (target) => {
@@ -107,6 +111,10 @@ export default function SystemAdminDashboard({ onLogout }) {
             <span>Role</span>
             <strong>System Admin</strong>
           </div>
+          <button type='button' className='system-admin-theme-toggle' onClick={toggleTheme} title={isDark ? 'Light mode' : 'Dark mode'}>
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {isDark ? 'Light' : 'Dark'}
+          </button>
           {onLogout && (
             <button type='button' className='system-admin-logout' onClick={onLogout}>
               <LogOut size={16} />
