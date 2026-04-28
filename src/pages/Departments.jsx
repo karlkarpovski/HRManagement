@@ -3,31 +3,31 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
+import { useEmployeesRealtime } from '../data/employeesRealtimeStore';
+import { useDepartmentsRealtime } from '../data/departmentsRealtimeStore';
 import '../styles/pages.css';
 
 const Departments = () => {
-  const [departments, setDepartments] = useState([
-    { id: 1, name: 'IT', manager: 'Arjun Verma', employees: 12, budget: 500000 },
-    { id: 2, name: 'HR', manager: 'Priya Singh', employees: 8, budget: 200000 },
-    { id: 3, name: 'Finance', manager: 'Rajesh Patel', employees: 10, budget: 300000 },
-    { id: 4, name: 'Sales', manager: 'Vikas Kumar', employees: 15, budget: 400000 },
-  ]);
+  const [departments, setDepartments] = useDepartmentsRealtime();
 
-  const [employees] = useState([
-    { id: 1, name: 'Anil Kumar', department: 'IT' },
-    { id: 2, name: 'Priya Singh', department: 'HR' },
-    { id: 3, name: 'Rajesh Patel', department: 'Finance' },
-    { id: 4, name: 'Neha Sharma', department: 'Sales' },
-    { id: 5, name: 'Arjun Verma', department: 'IT' },
-  ]);
+  const [employees] = useEmployeesRealtime();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEmployeeProfileOpen, setIsEmployeeProfileOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     manager: '',
     budget: '',
   });
+
+  const formatCurrency = (amount) => `$ ${Number(amount || 0).toLocaleString()}`;
+
+  const openEmployeeProfile = (employee) => {
+    setSelectedEmployee(employee);
+    setIsEmployeeProfileOpen(true);
+  };
 
   const handleAddDepartment = () => {
     setSelectedDept(null);
@@ -59,7 +59,7 @@ const Departments = () => {
                 ...d,
                 name: formData.name,
                 manager: formData.manager,
-                budget: parseInt(formData.budget),
+                budget: parseInt(formData.budget, 10),
               }
             : d
         )
@@ -70,7 +70,7 @@ const Departments = () => {
         name: formData.name,
         manager: formData.manager,
         employees: 0,
-        budget: parseInt(formData.budget),
+        budget: parseInt(formData.budget, 10),
       };
       setDepartments([...departments, newDept]);
     }
@@ -161,7 +161,19 @@ const Departments = () => {
                 <strong>Staff:</strong>
                 <ul>
                   {deptEmployees.map((emp) => (
-                    <li key={emp.id}>{emp.name}</li>
+                    <li key={emp.id} className="dept-employee-item">
+                      <div>
+                        <span className="dept-employee-name">{emp.name}</span>
+                        <span className="dept-employee-meta">{emp.position}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="profile-btn"
+                        onClick={() => openEmployeeProfile(emp)}
+                      >
+                        Profile
+                      </button>
+                    </li>
                   ))}
                   {deptEmployees.length === 0 && <li>No employees</li>}
                 </ul>
@@ -233,6 +245,71 @@ const Departments = () => {
             )}
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={isEmployeeProfileOpen}
+        onClose={() => setIsEmployeeProfileOpen(false)}
+        title={selectedEmployee ? `${selectedEmployee.name} - Employee Profile` : 'Employee Profile'}
+      >
+        {selectedEmployee && (
+          <div className="employee-profile-container">
+            <div className="employee-profile-grid">
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Employee ID</span>
+                <span className="employee-profile-value">{selectedEmployee.employeeCode}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Department</span>
+                <span className="employee-profile-value">{selectedEmployee.department}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Position</span>
+                <span className="employee-profile-value">{selectedEmployee.position}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Status</span>
+                <span className="employee-profile-value">{selectedEmployee.status}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Salary</span>
+                <span className="employee-profile-value">{formatCurrency(selectedEmployee.salary)}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Date of Birth</span>
+                <span className="employee-profile-value">{new Date(selectedEmployee.birthday).toLocaleDateString()}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Joined On</span>
+                <span className="employee-profile-value">{new Date(selectedEmployee.joinDate).toLocaleDateString()}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Email</span>
+                <span className="employee-profile-value">{selectedEmployee.email}</span>
+              </div>
+              <div className="employee-profile-item">
+                <span className="employee-profile-label">Phone</span>
+                <span className="employee-profile-value">{selectedEmployee.phone}</span>
+              </div>
+              <div className="employee-profile-item employee-profile-item-full">
+                <span className="employee-profile-label">Address</span>
+                <span className="employee-profile-value">{selectedEmployee.address}</span>
+              </div>
+              <div className="employee-profile-item employee-profile-item-full">
+                <span className="employee-profile-label">Emergency Contact</span>
+                <span className="employee-profile-value">{selectedEmployee.emergencyContact}</span>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <Button
+                label="Close"
+                onClick={() => setIsEmployeeProfileOpen(false)}
+                variant="secondary"
+              />
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
 import axios from 'axios';
 import {
   LineChart,
@@ -15,6 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useEmployeesRealtime } from '../data/employeesRealtimeStore';
 import '../styles/dashboard.css';
 
 const ThemeContext = createContext();
@@ -78,12 +79,95 @@ const positionDist = [
   { name: 'Junior', value: 30, color: '#2a7a8c' },
 ];
 
-const notifications = [
-  { id: 1, text: 'Elena Morozova - 3-Year Work Anniversary', sub: 'Tomorrow, Jun 25', done: false },
-  { id: 2, text: 'David Kim - Leave Limit Alert (18/20 days used)', sub: 'As of today', done: false },
-  { id: 3, text: 'New Employee Onboarding - 3 pending kits', sub: 'John Smith / Hossein / Maryam', done: true },
-  { id: 4, text: 'Francisco Vasquez - 5-Year Work Anniversary', sub: 'Jun 30, 2021', done: false },
+const defaultNotifications = [
+  { id: 'base-1', text: 'Elena Morozova - 3-Year Work Anniversary', sub: 'Tomorrow, Jun 25', done: false },
+  { id: 'base-2', text: 'David Kim - Leave Limit Alert (18/20 days used)', sub: 'As of today', done: false },
+  { id: 'base-3', text: 'New Employee Onboarding - 3 pending kits', sub: 'John Smith / Hossein / Maryam', done: true },
+  { id: 'base-4', text: 'Francisco Vasquez - 5-Year Work Anniversary', sub: 'Jun 30, 2021', done: false },
 ];
+
+const parseBirthday = (rawDate) => {
+  if (!rawDate) {
+    return null;
+  }
+
+  const parsed = new Date(rawDate);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed;
+};
+
+const isBirthdayToday = (rawDate) => {
+  const birthday = parseBirthday(rawDate);
+  if (!birthday) {
+    return false;
+  }
+
+  const today = new Date();
+  return birthday.getDate() === today.getDate() && birthday.getMonth() === today.getMonth();
+};
+
+const formatBirthdayDate = (rawDate) => {
+  const birthday = parseBirthday(rawDate);
+  if (!birthday) {
+    return 'Today';
+  }
+
+  return birthday.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+const buildBirthdayMessage = (name, rawDate) => {
+  const birthday = parseBirthday(rawDate);
+  if (!birthday) {
+    return `Wishing ${name} a wonderful birthday.`;
+  }
+
+  const today = new Date();
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+  const birthdayThisYear = thisYearBirthday < todayMidnight ? new Date(today.getFullYear() + 1, birthday.getMonth(), birthday.getDate()) : thisYearBirthday;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const daysUntil = Math.round((birthdayThisYear - todayMidnight) / oneDay);
+  const age = birthdayThisYear.getFullYear() - birthday.getFullYear();
+
+  if (daysUntil === 0) {
+    return `Happy Birthday, ${name}! Turning ${age} today.`;
+  }
+
+  return `Birthday on ${birthdayThisYear.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}.`;
+};
+
+const getUpcomingBirthdayDetails = (rawDate) => {
+  const birthday = parseBirthday(rawDate);
+  if (!birthday) {
+    return null;
+  }
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let nextBirthday = new Date(now.getFullYear(), birthday.getMonth(), birthday.getDate());
+
+  if (nextBirthday < today) {
+    nextBirthday = new Date(now.getFullYear() + 1, birthday.getMonth(), birthday.getDate());
+  }
+
+  const oneDay = 1000 * 60 * 60 * 24;
+  const daysUntil = Math.round((nextBirthday - today) / oneDay);
+
+  return {
+    daysUntil,
+    label: nextBirthday.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    }),
+  };
+};
 
 const perfColor = (p) =>
   ({
@@ -228,39 +312,75 @@ function CustomTooltip({ active, payload, label, dark }) {
 const LINE_COLORS = ['#3cbaba', '#f0c040', '#2a7a8c', '#8ecfcf', '#f08040'];
 const BAR_COLORS = ['#2a7a8c', '#3cbaba', '#f0c040'];
 
+const mapStoreEmployeeToDashboard = (employee) => ({
+  id: employee.id,
+  name: employee.name,
+  role: employee.position || 'Employee',
+  dept: employee.department || 'General',
+  birthday: employee.dob || null,
+  perf: 'Good',
+  sync: true,
+});
+
+const mapEmployee = (employee) => ({
+  id: employee.EmployeeID,
+  name: employee.FullName,
+  department: `Dept ${employee.DepartmentID}`,
+  position: employee.PositionName || `Position ${employee.PositionID || ''}`.trim(),
+  dob: employee.DateOfBirth || employee.BirthDate || employee.DOB || null,
+  status: employee.Status || 'Active',
+  salary: Number(employee.Salary || 0),
+});
+
 function DashboardPage() {
   console.log("🔥 DashboardPage render");
-  const [employees, setEmployees] = useState([]);
+  const [sharedEmployees, setSharedEmployees] = useEmployeesRealtime();
+  const employees = useMemo(() => sharedEmployees.map(mapStoreEmployeeToDashboard), [sharedEmployees]);
+  const [now, setNow] = useState(new Date());
   useEffect(() => {
-  axios.get('http://127.0.0.1:5000/api/employees')
-    .then(res => {
-      console.log("DATA:", res.data);
+    axios
+      .get('http://127.0.0.1:5000/api/employees')
+      .then((res) => {
+        console.log('DATA:', res.data);
 
-      const mapped = res.data.map(e => ({
-        id: e.EmployeeID,
-        name: e.FullName,
-        role: "Employee",
-        dept: "Dept " + e.DepartmentID,
-        perf: "Good",
-        sync: true
-      }));
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map(mapEmployee);
+          console.log('MAPPED:', mapped);
+          setSharedEmployees(mapped);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [setSharedEmployees]);
 
-      console.log("MAPPED:", mapped);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
 
-      setEmployees(mapped);
-    })
-    .catch(err => console.log(err));
+    return () => clearInterval(timer);
   }, []);
+
   const { dark, toggle } = useTheme();
   const [search, setSearch] = useState('');
   const [empModal, setEmpModal] = useState(false);
-  const [todos, setTodos] = useState(notifications);
+  const [todos, setTodos] = useState(defaultNotifications);
   const [searchFocused, setSearchFocused] = useState(false);
 
   const text = dark ? '#d4e6f4' : '#1a2a38';
   const muted = dark ? '#7a95aa' : '#8ca0af';
   const border = dark ? '#243040' : '#e0eaf0';
   const accent = '#3cbaba';
+  const nowDisplay = now.toLocaleString(undefined, {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 
   const filtered = employees.filter(
     (e) =>
@@ -269,6 +389,56 @@ function DashboardPage() {
       e.role.toLowerCase().includes(search.toLowerCase()) ||
       e.dept.toLowerCase().includes(search.toLowerCase())
   );
+
+  const birthdayNotifications = useMemo(
+    () =>
+      employees
+        .filter((employee) => isBirthdayToday(employee.birthday))
+        .map((employee) => ({
+          id: `birthday-${employee.id}`,
+          text: `${employee.name} - Birthday Today`,
+          sub: buildBirthdayMessage(employee.name, employee.birthday),
+          done: false,
+        })),
+    [employees]
+  );
+
+  const upcomingBirthdays = useMemo(
+    () =>
+      employees
+        .map((employee) => {
+          const birthdayInfo = getUpcomingBirthdayDetails(employee.birthday);
+          if (!birthdayInfo) {
+            return null;
+          }
+
+          return {
+            id: employee.id,
+            name: employee.name,
+            dept: employee.dept,
+            ...birthdayInfo,
+          };
+        })
+        .filter(Boolean)
+        .filter((item) => item.daysUntil <= 7)
+        .sort((a, b) => a.daysUntil - b.daysUntil),
+    [employees]
+  );
+
+  const notificationFeed = useMemo(
+    () => [...birthdayNotifications, ...defaultNotifications],
+    [birthdayNotifications]
+  );
+
+  useEffect(() => {
+    setTodos((current) => {
+      const doneMap = new Map(current.map((item) => [item.id, item.done]));
+      return notificationFeed.map((item) => ({
+        ...item,
+        done: doneMap.get(item.id) ?? item.done,
+      }));
+    });
+  }, [notificationFeed]);
 
   const toggleTodo = (id) => setTodos((list) => list.map((x) => (x.id === id ? { ...x, done: !x.done } : x)));
 
@@ -284,6 +454,7 @@ function DashboardPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px', background: dark ? '#162030' : '#fff', borderBottom: `1px solid ${border}` }}>
         <div style={{ fontSize: 18, fontWeight: 800, color: text, letterSpacing: '-0.01em' }}>HR Dashboard</div>
         <div style={{ fontSize: 12, color: muted, marginRight: 'auto' }}>HRMS / Dashboard</div>
+        <div style={{ fontSize: 12, color: muted, fontWeight: 600 }}>{nowDisplay}</div>
 
         <div style={{ position: 'relative' }}>
           <input
@@ -400,6 +571,40 @@ function DashboardPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </Block>
+
+            <Block dark={dark} title='Upcoming Birthdays (Next 7 Days)'>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {upcomingBirthdays.length > 0 ? (
+                  upcomingBirthdays.map((employee) => (
+                    <div
+                      key={employee.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        border: `1px solid ${border}`,
+                        borderRadius: 8,
+                        padding: '10px 12px',
+                        background: dark ? '#1a2838' : '#f8fbfc',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 12.5, fontWeight: 700, color: text }}>{employee.name}</div>
+                        <div style={{ fontSize: 11, color: muted, marginTop: 2 }}>{employee.dept}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 11.5, fontWeight: 700, color: '#3cbaba' }}>
+                          {employee.daysUntil === 0 ? 'Today' : `In ${employee.daysUntil} day${employee.daysUntil > 1 ? 's' : ''}`}
+                        </div>
+                        <div style={{ fontSize: 10.5, color: muted, marginTop: 2 }}>{buildBirthdayMessage(employee.name, employee.birthday)}</div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ fontSize: 12, color: muted }}>No upcoming birthdays in the next 7 days.</div>
+                )}
               </div>
             </Block>
 

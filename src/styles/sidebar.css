@@ -7,12 +7,14 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  transition: width 0.3s ease;
+  transition: width 0.34s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
   position: fixed;
   left: 0;
   top: 0;
   height: 100vh;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
 }
 
 .sidebar.closed {
@@ -36,6 +38,18 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.sidebar-title {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.2s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.sidebar-title.visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .toggle-btn {
@@ -76,6 +90,8 @@
   font-size: 15px;
   font-weight: 500;
   position: relative;
+  border-radius: 10px;
+  margin: 0 10px;
 }
 
 .menu-item::before {
@@ -112,6 +128,19 @@
 
 .menu-item .label {
   white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.group-arrow {
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.75;
+  transition: transform 0.24s ease;
+}
+
+.group-arrow.open {
+  transform: rotate(180deg);
 }
 
 .submenu {
@@ -120,6 +149,17 @@
   gap: 4px;
   margin: 0 0 8px;
   padding-left: 16px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-4px);
+  transition: max-height 0.32s ease, opacity 0.22s ease, transform 0.28s ease;
+}
+
+.submenu.open {
+  max-height: 240px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .submenu-item {
@@ -152,6 +192,23 @@
   gap: 10px;
 }
 
+.sidebar.closed .label,
+.sidebar.closed .group-arrow,
+.sidebar.closed .user-info {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.sidebar.closed .menu-item {
+  justify-content: center;
+  gap: 0;
+  margin: 0 8px;
+}
+
+.sidebar.closed .icon {
+  margin: 0;
+}
+
 .user-info {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
@@ -180,33 +237,20 @@
   transform: translateY(-1px);
 }
 
-/* Adjust main content for sidebar */
-.main-content {
-  margin-left: 250px;
-}
-
-.main-content + .sidebar.closed {
-  /* When sidebar is closed */
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    left: -250px;
+    left: -260px;
     z-index: 900;
+    transition: left 0.3s ease;
   }
 
   .sidebar.open {
     left: 0;
   }
 
-  .main-content {
-    margin-left: 0;
-  }
-
   .sidebar.closed {
-    left: -80px;
+    left: -260px;
   }
 
   .toggle-btn {
