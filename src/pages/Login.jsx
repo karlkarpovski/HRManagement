@@ -3,10 +3,16 @@ import '../styles/login.css';
 
 const AUTH_RULES = {
   manager: {
-    label: 'Manager',
+    label: 'HR Manager',
     username: 'manager',
     password: 'test',
-    description: 'Access the HR dashboard and management controls.',
+    description: 'Manage employees, departments, reports, and analytics.',
+  },
+  'payroll-manager': {
+    label: 'Payroll Manager',
+    username: 'pay01',
+    password: 'paypass',
+    description: 'Manage payroll runs, attendance checks, and payroll history.',
   },
   employee: {
     label: 'Employee',
@@ -15,7 +21,7 @@ const AUTH_RULES = {
     description: 'View your profile, schedule, and personal HR records.',
   },
   'system-admin': {
-    label: 'System admin',
+    label: 'System Admin',
     username: 'admin',
     password: 'test',
     description: 'Manage platform settings, access, and system configuration.',
@@ -54,7 +60,7 @@ export default function Login({ onLoginSuccess }) {
           <p className='login-eyebrow'>Role-based portal</p>
           <h1>Secure access for every team role.</h1>
           <p>
-            Sign in as a manager, employee, or system admin from one consistent entry point.
+            Sign in as an HR Manager, Payroll Manager, employee, or system admin from one consistent entry point.
           </p>
 
           <div className='login-features'>
@@ -63,6 +69,13 @@ export default function Login({ onLoginSuccess }) {
               <div>
                 <strong>{AUTH_RULES.manager.label}</strong>
                 <p>{AUTH_RULES.manager.description}</p>
+              </div>
+            </div>
+            <div className='login-feature'>
+              <span className='login-feature-dot' />
+              <div>
+                <strong>{AUTH_RULES['payroll-manager'].label}</strong>
+                <p>{AUTH_RULES['payroll-manager'].description}</p>
               </div>
             </div>
             <div className='login-feature'>
@@ -142,11 +155,11 @@ export default function Login({ onLoginSuccess }) {
 
           <div className='login-credentials'>
             <div>
-              <span>Username</span>
+              <span>Username: </span>
               <strong>{currentRole.username}</strong>
             </div>
             <div>
-              <span>Password</span>
+              <span>Password: </span>
               <strong>{currentRole.password}</strong>
             </div>
           </div>

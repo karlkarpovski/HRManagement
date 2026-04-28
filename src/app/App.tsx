@@ -2,6 +2,8 @@ import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Dashboard from '../pages/Dashboard';
 import EmployeeDashboard from '../pages/EmployeeDashboard.jsx';
+import PayrollDashboard from '../pages/PayrollDashboard.jsx';
+import SystemAdminDashboard from '../pages/SystemAdminDashboard.jsx';
 import Login from '../pages/Login.jsx';
 import Employees from '../pages/Employees';
 import Departments from '../pages/Departments';
@@ -15,7 +17,9 @@ const LEGACY_AUTH_STORAGE_KEY = 'hrms-manager-authenticated';
 
 const normalizeRole = (value) => {
   const role = String(value || '').trim().toLowerCase();
-  return role === 'employee' || role === 'system-admin' || role === 'manager' ? role : 'manager';
+  return role === 'employee' || role === 'system-admin' || role === 'manager' || role === 'payroll-manager'
+    ? role
+    : 'manager';
 };
 
 const getInitialAuthState = () => {
@@ -84,6 +88,14 @@ export default function App() {
 
   if (userRole === 'employee') {
     return <EmployeeDashboard onLogout={handleLogout} />;
+  }
+
+  if (userRole === 'payroll-manager') {
+    return <PayrollDashboard onLogout={handleLogout} />;
+  }
+
+  if (userRole === 'system-admin') {
+    return <SystemAdminDashboard onLogout={handleLogout} />;
   }
 
   const renderPage = () => {
