@@ -1,12 +1,20 @@
 import { useState } from 'react';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/login.css';
 
 const AUTH_RULES = {
   manager: {
-    label: 'Manager',
+    label: 'HR Manager',
     username: 'manager',
     password: 'test',
-    description: 'Access the HR dashboard and management controls.',
+    description: 'Manage employees, departments, reports, and analytics.',
+  },
+  'payroll-manager': {
+    label: 'Payroll Manager',
+    username: 'pay01',
+    password: 'paypass',
+    description: 'Manage payroll runs, attendance checks, and payroll history.',
   },
   employee: {
     label: 'Employee',
@@ -15,7 +23,7 @@ const AUTH_RULES = {
     description: 'View your profile, schedule, and personal HR records.',
   },
   'system-admin': {
-    label: 'System admin',
+    label: 'System Admin',
     username: 'admin',
     password: 'test',
     description: 'Manage platform settings, access, and system configuration.',
@@ -29,6 +37,7 @@ export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { isDark, toggleTheme } = useTheme();
 
   const handleSubmit = async (event) => {
   event.preventDefault();
@@ -76,7 +85,7 @@ export default function Login({ onLoginSuccess }) {
           <p className='login-eyebrow'>Role-based portal</p>
           <h1>Secure access for every team role.</h1>
           <p>
-            Sign in as a manager, employee, or system admin from one consistent entry point.
+            Sign in as an HR Manager, Payroll Manager, employee, or system admin from one consistent entry point.
           </p>
 
           <div className='login-features'>
@@ -85,6 +94,13 @@ export default function Login({ onLoginSuccess }) {
               <div>
                 <strong>{AUTH_RULES.manager.label}</strong>
                 <p>{AUTH_RULES.manager.description}</p>
+              </div>
+            </div>
+            <div className='login-feature'>
+              <span className='login-feature-dot' />
+              <div>
+                <strong>{AUTH_RULES['payroll-manager'].label}</strong>
+                <p>{AUTH_RULES['payroll-manager'].description}</p>
               </div>
             </div>
             <div className='login-feature'>
@@ -110,8 +126,32 @@ export default function Login({ onLoginSuccess }) {
 
         <section className='login-card'>
           <div className='login-card-header'>
-            <span className='login-pill'>Protected access</span>
-            <h2>Sign in to continue</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <div>
+                <span className='login-pill'>Protected access</span>
+                <h2>Sign in to continue</h2>
+              </div>
+              <button
+                type='button'
+                onClick={toggleTheme}
+                title={isDark ? 'Light mode' : 'Dark mode'}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(105, 130, 149, 0.16)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  color: 'inherit',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </div>
             <p>Select your role, then enter the corresponding credentials.</p>
           </div>
 
@@ -164,11 +204,11 @@ export default function Login({ onLoginSuccess }) {
 
           <div className='login-credentials'>
             <div>
-              <span>Username</span>
+              <span>Username: </span>
               <strong>{currentRole.username}</strong>
             </div>
             <div>
-              <span>Password</span>
+              <span>Password: </span>
               <strong>{currentRole.password}</strong>
             </div>
           </div>

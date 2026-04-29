@@ -7,8 +7,10 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   ReceiptText,
   Settings,
+  Sun,
   UserRound,
   ClipboardList,
   Wallet,
@@ -24,6 +26,7 @@ import {
   CircleX,
   MonitorUp,
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/employee-dashboard.css';
 
 const employee = {
@@ -118,6 +121,7 @@ export default function EmployeeDashboard({ onLogout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
   const sectionRefs = useRef({});
 
   const navItems = useMemo(() => roleNav, []);
@@ -371,6 +375,10 @@ export default function EmployeeDashboard({ onLogout }) {
               <button type='button' onClick={() => jumpTo('profile')}>
                 <Settings size={16} />
                 Settings
+              </button>
+              <button type='button' onClick={toggleTheme}>
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                {isDark ? 'Light' : 'Dark'} mode
               </button>
               <button type='button' onClick={onLogout}>
                 <LogOut size={16} />

@@ -1,8 +1,3 @@
-
-  # Create HRM Login Page
-
-  This is a code bundle for Create HRM Login Page. The original project is available at https://www.figma.com/design/1U1qysxyYAUaUuwfDJoole/Create-HRM-Login-Page.
-
   ## Running the code
 
   Run `npm i` to install the dependencies.

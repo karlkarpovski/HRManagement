@@ -281,6 +281,73 @@
   letter-spacing: 0.05em;
 }
 
+/* Dark mode overrides for Employees, Departments, Reports, and Analytics pages */
+.dark .page-container {
+  color: #e8f0f8;
+}
+
+.dark .page-section::after {
+  background: linear-gradient(to right, rgba(60, 186, 186, 0.2), transparent);
+}
+
+.dark .dept-header h2,
+.dark .dept-info strong,
+.dark .dept-employee-name,
+.dark .employee-profile-value,
+.dark .stat-value,
+.dark .summary-value,
+.dark .item-label strong {
+  color: #e8f0f8;
+}
+
+.dark .dept-info p,
+.dark .dept-employees li,
+.dark .dept-employee-meta,
+.dark .employee-profile-label,
+.dark .stat-label,
+.dark .summary-label,
+.dark .item-count,
+.dark .summary-table th {
+  color: #8ba3b8;
+}
+
+.dark .edit-btn {
+  background: #2a3d4f;
+  border-color: rgba(60, 186, 186, 0.16);
+}
+
+.dark .profile-btn {
+  border-color: rgba(60, 186, 186, 0.2);
+  background: #2a3d4f;
+  color: #e8f0f8;
+}
+
+.dark .employee-profile-item,
+.dark .stat-box,
+.dark .summary-box,
+.dark .summary-item {
+  background: #24374a;
+  border-color: rgba(60, 186, 186, 0.14);
+}
+
+.dark .bar-bg {
+  background: #24374a;
+  border-color: rgba(60, 186, 186, 0.16);
+}
+
+.dark .summary-table td {
+  color: #e8f0f8;
+  border-bottom-color: rgba(60, 186, 186, 0.14);
+}
+
+.dark .summary-value.bonus {
+  color: #6ee7b7;
+}
+
+.dark .summary-value.penalty {
+  color: #fda4af;
+}
+
 @media (max-width: 768px) {
   .page-container {
     padding: 0 0 18px;
