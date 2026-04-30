@@ -27,9 +27,13 @@ def get_payroll_report():
             p_query = text("SELECT EmployeeID, SUM(NetSalary) as TotalPaid FROM salaries GROUP BY EmployeeID")
             p_data = {row['EmployeeID']: float(row['TotalPaid']) for row in p_conn.execute(p_query).mappings().all()}
 
-        # Lấy thông tin nhân viên từ SQL Server để map tên
+        # Lấy thông tin nhân viên từ SQL Server (kèm DepartmentName)
         with engine_human.connect() as h_conn:
-            h_query = text("SELECT EmployeeID, FullName FROM Employees")
+            h_query = text("""
+                SELECT e.EmployeeID, e.FullName, d.DepartmentName
+                FROM Employees e
+                LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID
+            """)
             h_data = h_conn.execute(h_query).mappings().all()
 
         report = []
@@ -37,6 +41,7 @@ def get_payroll_report():
             report.append({
                 "EmployeeID": emp['EmployeeID'],
                 "FullName": emp['FullName'],
+                "DepartmentName": emp['DepartmentName'] or 'N/A',
                 "TotalEarnings": p_data.get(emp['EmployeeID'], 0)
             })
         return jsonify(report), 200
@@ -47,7 +52,7 @@ def get_payroll_report():
 def get_dividend_report():
     try:
         with engine_human.connect() as conn:
-            query = text("SELECT * FROM Dividends ORDER BY PaymentDate DESC")
+            query = text("SELECT * FROM Dividends ORDER BY DividendDate DESC")
             result = conn.execute(query).mappings().all()
         return jsonify([dict(row) for row in result]), 200
     except Exception as e:

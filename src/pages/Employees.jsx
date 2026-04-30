@@ -4,321 +4,193 @@ import Button from '../components/Button';
 import Table from '../components/Table';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
-import { useEmployeesRealtime } from '../data/employeesRealtimeStore';
-import { useDepartmentsRealtime } from '../data/departmentsRealtimeStore';
 import '../styles/pages.css';
+import api from '../api/axios';
 
-const parseDateInput = (value) => {
-  if (!value) {
-    return null;
-  }
-
-  const parts = String(value).split('-').map((part) => Number(part));
-  if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) {
-    return null;
-  }
-
-  const [year, month, day] = parts;
-  const parsed = new Date(year, month - 1, day);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+const parseDate = (dateStr) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
 };
 
-const formatDateDisplay = (value) => {
-  const parsed = parseDateInput(value);
-  if (!parsed) {
-    return 'Not set';
-  }
-
-  return parsed.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+const formatDate = (dateStr) => {
+  const d = parseDate(dateStr);
+  return d ? d.toLocaleDateString('vi-VN') : 'N/A';
 };
 
-const getBirthdayInfo = (name, value) => {
-  const birthday = parseDateInput(value);
-  if (!birthday) {
-    return {
-      label: 'Not set',
-      message: `${name} does not have a date of birth on file yet.`,
-      isBirthdayToday: false,
-      daysUntil: null,
-    };
-  }
+const getBirthdayStatus = (dobStr) => {
+  const dob = parseDate(dobStr);
+  if (!dob) return { label: 'N/A', message: 'Chưa có dữ liệu', isToday: false, daysUntil: 999 };
 
   const today = new Date();
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  let nextBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+  today.setHours(0, 0, 0, 0);
+  const nextBDay = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+  if (nextBDay < today) nextBDay.setFullYear(today.getFullYear() + 1);
 
-  if (nextBirthday < todayMidnight) {
-    nextBirthday = new Date(today.getFullYear() + 1, birthday.getMonth(), birthday.getDate());
-  }
-
-  const oneDay = 1000 * 60 * 60 * 24;
-  const daysUntil = Math.round((nextBirthday - todayMidnight) / oneDay);
-  const age = nextBirthday.getFullYear() - birthday.getFullYear();
-
-  if (daysUntil === 0) {
-    return {
-      label: 'Today',
-      message: ` Happy Birthday, ${name}! Wishing you a fantastic year ahead. `,
-      isBirthdayToday: true,
-      daysUntil,
-      age,
-    };
-  }
-
+  const diff = Math.ceil((nextBDay - today) / (1000 * 60 * 60 * 24));
   return {
-    label: `In ${daysUntil} day${daysUntil > 1 ? 's' : ''}`,
-    message: ` ${name}'s birthday is on ${formatDateDisplay(value)}. Send wishes when it comes around. `,
-    isBirthdayToday: false,
-    daysUntil,
-    age,
-  };
-};
-
-const enrichEmployee = (employee) => {
-  const birthdayInfo = getBirthdayInfo(employee.name, employee.dob);
-
-  return {
-    ...employee,
-    dobLabel: formatDateDisplay(employee.dob),
-    birthdayLabel: birthdayInfo.label,
-    birthdayMessage: birthdayInfo.message,
-    birthdayAge: birthdayInfo.age,
-    isBirthdayToday: birthdayInfo.isBirthdayToday,
+    label: diff === 0 ? 'Hôm nay 🎂' : `Còn ${diff} ngày`,
+    message: diff === 0 ? 'Chúc mừng sinh nhật!' : `Sắp đến sinh nhật (${diff} ngày nữa)`,
+    isToday: diff === 0,
+    daysUntil: diff,
   };
 };
 
 const Employees = () => {
-  const [employees, setEmployees] = useEmployeesRealtime();
-  const [departments, setDepartments] = useDepartmentsRealtime();
-
+  const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+
   const [formData, setFormData] = useState({
-    name: '',
-    department: '',
-    position: '',
-    dob: '',
-    status: 'Active',
-    salary: '',
+    FullName: '', DepartmentID: '', PositionID: '', DateOfBirth: '', salary: '', Status: 'Active',
   });
 
-  const columns = [
-    { key: 'id', label: 'ID' },
-    { key: 'name', label: 'Name' },
-    { key: 'department', label: 'Department' },
-    { key: 'position', label: 'Position' },
-    { key: 'dobLabel', label: 'Date of Birth' },
-    { key: 'salary', label: 'Salary ($)' },
-    { key: 'status', label: 'Status' },
-  ];
-
-  const enrichedEmployees = useMemo(() => employees.map(enrichEmployee), [employees]);
-
-  const departmentOptions = useMemo(() => {
-    const fromDepartments = departments
-      .map((department) => department.name)
-      .filter(Boolean);
-
-    const fromEmployees = employees
-      .map((employee) => employee.department)
-      .filter(Boolean);
-
-    return Array.from(new Set([...fromDepartments, ...fromEmployees])).sort((a, b) => a.localeCompare(b));
-  }, [departments, employees]);
-
-  useEffect(() => {
-    const employeeDepartmentNames = Array.from(
-      new Set(
-        employees
-          .map((employee) => String(employee.department || '').trim())
-          .filter(Boolean)
-      )
-    );
-
-    if (employeeDepartmentNames.length === 0) {
-      return;
+  // Fetch all reference data + employees
+  const fetchAll = async () => {
+    try {
+      setLoading(true);
+      const [empRes, deptRes, posRes] = await Promise.all([
+        api.get('/employees'),
+        api.get('/departments'),
+        api.get('/positions'),
+      ]);
+      setEmployees(Array.isArray(empRes.data) ? empRes.data : []);
+      setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
+      setPositions(Array.isArray(posRes.data) ? posRes.data : []);
+    } catch (err) {
+      console.error('Lỗi tải dữ liệu:', err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setDepartments((current) => {
-      const normalizedCurrentNames = new Set(
-        current
-          .map((department) => String(department.name || '').trim().toLowerCase())
-          .filter(Boolean)
-      );
+  useEffect(() => { fetchAll(); }, []);
 
-      const missingNames = employeeDepartmentNames.filter(
-        (name) => !normalizedCurrentNames.has(name.toLowerCase())
-      );
-
-      if (missingNames.length === 0) {
-        return current;
+  const handleSaveEmployee = async () => {
+    try {
+      if (editingEmployee) {
+        await api.put(`/employees/${editingEmployee.EmployeeID}`, formData);
+      } else {
+        await api.post('/employees', formData);
       }
-
-      let nextId = Math.max(...current.map((department) => department.id || 0), 0) + 1;
-      const appendedDepartments = missingNames.map((name) => {
-        const created = {
-          id: nextId,
-          name,
-          manager: 'Unassigned',
-          employees: 0,
-          budget: 0,
-        };
-        nextId += 1;
-        return created;
-      });
-
-      return [...current, ...appendedDepartments];
-    });
-  }, [employees, setDepartments]);
-
-  const filteredEmployees = useMemo(() => {
-    let filtered = enrichedEmployees;
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter((emp) =>
-        emp.name.toLowerCase().includes(term) ||
-        emp.position.toLowerCase().includes(term) ||
-        emp.department.toLowerCase().includes(term) ||
-        emp.dobLabel.toLowerCase().includes(term) ||
-        emp.birthdayMessage.toLowerCase().includes(term)
-      );
+      setIsModalOpen(false);
+      fetchAll();
+    } catch (err) {
+      alert('Lỗi khi lưu thông tin!');
     }
+  };
 
-    if (departmentFilter) {
-      filtered = filtered.filter((emp) => emp.department === departmentFilter);
+  const handleDeleteEmployee = async (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa?')) {
+      try {
+        await api.delete(`/employees/${id}`);
+        fetchAll();
+      } catch (err) {
+        alert('Lỗi khi xóa nhân viên!');
+      }
     }
-
-    return filtered;
-  }, [enrichedEmployees, searchTerm, departmentFilter]);
-
-  const birthdayNotifications = useMemo(
-    () =>
-      enrichedEmployees.filter((employee) => employee.isBirthdayToday || employee.birthdayLabel === 'In 1 day' || employee.birthdayLabel === 'In 2 days' || employee.birthdayLabel === 'In 3 days' || employee.birthdayLabel === 'In 4 days' || employee.birthdayLabel === 'In 5 days' || employee.birthdayLabel === 'In 6 days' || employee.birthdayLabel === 'In 7 days'),
-    [enrichedEmployees]
-  );
+  };
 
   const handleAddEmployee = () => {
     setEditingEmployee(null);
+    setFormData({ FullName: '', DepartmentID: '', PositionID: '', DateOfBirth: '', salary: '', Status: 'Active' });
+    setIsModalOpen(true);
+  };
+
+  const handleEditEmployee = (emp) => {
+    setEditingEmployee(emp);
     setFormData({
-      name: '',
-      department: '',
-      position: '',
-      dob: '',
-      status: 'Active',
-      salary: '',
+      FullName: emp.FullName || '',
+      DepartmentID: emp.DepartmentID || '',
+      PositionID: emp.PositionID || '',
+      DateOfBirth: emp.DateOfBirth ? emp.DateOfBirth.split('T')[0] : '',
+      salary: emp.salary || '',
+      Status: emp.Status || 'Active',
     });
     setIsModalOpen(true);
   };
 
-  const handleEditEmployee = (employee) => {
-    setEditingEmployee(employee);
-    setFormData({
-      name: employee.name,
-      department: employee.department,
-      position: employee.position,
-      dob: employee.dob,
-      status: employee.status,
-      salary: employee.salary,
+  const handleViewProfile = (emp) => {
+    const bday = getBirthdayStatus(emp.DateOfBirth);
+    setSelectedProfile({
+      id: emp.EmployeeID,
+      name: emp.FullName,
+      departmentId: emp.DepartmentID,
+      positionId: emp.PositionID,
+      dobLabel: formatDate(emp.DateOfBirth),
+      birthdayLabel: bday.label,
+      birthdayMessage: bday.message,
+      salary: emp.salary || 'N/A',
+      status: emp.Status || 'Active',
+      email: emp.Email || 'N/A',
     });
-    setIsModalOpen(true);
-  };
-
-  const handleViewProfile = (employee) => {
-    setSelectedEmployee(employee);
     setIsProfileOpen(true);
   };
 
-  const handleSaveEmployee = () => {
-    if (!formData.name || !formData.department || !formData.position || !formData.dob) {
-      alert('Please fill name, department, position, and date of birth');
-      return;
-    }
+  // Lookup maps for display names
+  const deptMap = useMemo(() => {
+    const m = {};
+    departments.forEach((d) => { m[d.DepartmentID] = d.DepartmentName; });
+    return m;
+  }, [departments]);
 
-    const normalizedDepartment = String(formData.department || '').trim();
-    if (!normalizedDepartment) {
-      alert('Please fill name, department, position, and date of birth');
-      return;
-    }
+  const posMap = useMemo(() => {
+    const m = {};
+    positions.forEach((p) => { m[p.PositionID] = p.PositionName; });
+    return m;
+  }, [positions]);
 
-    setDepartments((current) => {
-      const departmentExists = current.some(
-        (department) => String(department.name || '').trim().toLowerCase() === normalizedDepartment.toLowerCase()
-      );
-
-      if (departmentExists) {
-        return current;
-      }
-
-      return [
-        ...current,
-        {
-          id: Math.max(...current.map((department) => department.id || 0), 0) + 1,
-          name: normalizedDepartment,
-          manager: 'Unassigned',
-          employees: 0,
-          budget: 0,
-        },
-      ];
-    });
-
-    const nextFormData = {
-      ...formData,
-      department: normalizedDepartment,
-    };
-
-    if (editingEmployee) {
-      const nextEmployees = employees.map((emp) =>
-        emp.id === editingEmployee.id
-          ? { ...emp, ...nextFormData }
-          : emp
-      );
-
-      setEmployees(nextEmployees);
-
-      if (selectedEmployee?.id === editingEmployee.id) {
-        const updatedEmployee = nextEmployees.find((emp) => emp.id === editingEmployee.id);
-        setSelectedEmployee(updatedEmployee ? enrichEmployee(updatedEmployee) : null);
-      }
-    } else {
-      const newEmployee = {
-        id: Math.max(...employees.map((e) => e.id), 0) + 1,
-        ...nextFormData,
+  const processedEmployees = useMemo(() => {
+    return employees.map((emp) => {
+      const bday = getBirthdayStatus(emp.DateOfBirth);
+      return {
+        ...emp,
+        name: emp.FullName,
+        dobLabel: formatDate(emp.DateOfBirth),
+        birthdayLabel: bday.label,
+        birthdayMessage: bday.message,
+        daysUntil: bday.daysUntil,
+        isToday: bday.isToday,
+        DepartmentName: deptMap[emp.DepartmentID] || emp.DepartmentID || 'N/A',
+        PositionName: posMap[emp.PositionID] || emp.PositionID || 'N/A',
       };
-      setEmployees((current) => [...current, newEmployee]);
-      setSelectedEmployee(enrichEmployee(newEmployee));
-    }
-
-    setIsModalOpen(false);
-    setFormData({
-      name: '',
-      department: '',
-      position: '',
-      dob: '',
-      status: 'Active',
-      salary: '',
     });
-  };
+  }, [employees, deptMap, posMap]);
 
-  const handleDeleteEmployee = (id) => {
-    if (window.confirm('Are you sure?')) {
-      setEmployees((current) => current.filter((emp) => emp.id !== id));
-      if (selectedEmployee?.id === id) {
-        setSelectedEmployee(null);
-        setIsProfileOpen(false);
-      }
-    }
-  };
+  const departmentOptions = useMemo(() => {
+    return departments.map((d) => d.DepartmentID);
+  }, [departments]);
 
-  const selectedProfile = selectedEmployee ? enrichEmployee(selectedEmployee) : null;
+  const filteredEmployees = useMemo(() => {
+    return processedEmployees.filter((emp) => {
+      const matchesSearch = (emp.FullName || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDept = departmentFilter === '' || String(emp.DepartmentID) === departmentFilter;
+      return matchesSearch && matchesDept;
+    });
+  }, [processedEmployees, searchTerm, departmentFilter]);
+
+  const birthdayNotifications = useMemo(
+    () => processedEmployees.filter((emp) => emp.daysUntil <= 7),
+    [processedEmployees]
+  );
+
+  const columns = [
+    { key: 'EmployeeID', label: 'ID' },
+    { key: 'FullName', label: 'Họ và Tên' },
+    { key: 'Email', label: 'Email' },
+    { key: 'DepartmentName', label: 'Phòng ban' },
+    { key: 'PositionName', label: 'Chức vụ' },
+    { key: 'dobLabel', label: 'Ngày sinh' },
+    { key: 'Status', label: 'Trạng thái' },
+  ];
 
   return (
     <div className="page-container">
@@ -326,22 +198,17 @@ const Employees = () => {
         title="Employee Management"
         subtitle="Manage all employees in the system"
         actions={
-          <Button
-            label="➕ Add Employee"
-            onClick={handleAddEmployee}
-            variant="primary"
-          />
+          <Button label="➕ Add Employee" onClick={handleAddEmployee} variant="primary" />
         }
       />
 
-      {/* Filters */}
       <Card title="Filters">
         <div className="filters-row">
           <div className="filter-group">
             <label>Search</label>
             <input
               type="text"
-              placeholder="Search by name or position..."
+              placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="filter-input"
@@ -356,9 +223,9 @@ const Employees = () => {
               className="filter-select"
             >
               <option value="">All Departments</option>
-              {departmentOptions.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
+              {departments.map((d) => (
+                <option key={d.DepartmentID} value={d.DepartmentID}>
+                  {d.DepartmentName}
                 </option>
               ))}
             </select>
@@ -367,10 +234,7 @@ const Employees = () => {
           <div className="filter-group">
             <Button
               label="Reset"
-              onClick={() => {
-                setSearchTerm('');
-                setDepartmentFilter('');
-              }}
+              onClick={() => { setSearchTerm(''); setDepartmentFilter(''); }}
               variant="secondary"
             />
           </div>
@@ -381,7 +245,7 @@ const Employees = () => {
         <div className="birthday-notifications">
           {birthdayNotifications.length > 0 ? (
             birthdayNotifications.map((employee) => (
-              <div key={employee.id} className="birthday-notification-item">
+              <div key={employee.EmployeeID} className="birthday-notification-item">
                 <strong>{employee.name}</strong>
                 <span>{employee.birthdayMessage}</span>
                 <small>{employee.dobLabel} · {employee.birthdayLabel}</small>
@@ -393,7 +257,6 @@ const Employees = () => {
         </div>
       </Card>
 
-      {/* Employee Table */}
       <Card title={`Employees (${filteredEmployees.length})`}>
         <Table
           columns={columns}
@@ -402,6 +265,7 @@ const Employees = () => {
         />
       </Card>
 
+      {/* Profile Modal */}
       <Modal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
@@ -420,11 +284,11 @@ const Employees = () => {
               </div>
               <div className="profile-item">
                 <label>Department: </label>
-                <span>{selectedProfile.department}</span>
+                <span>{deptMap[selectedProfile.departmentId] || selectedProfile.departmentId}</span>
               </div>
               <div className="profile-item">
                 <label>Position: </label>
-                <span>{selectedProfile.position}</span>
+                <span>{posMap[selectedProfile.positionId] || selectedProfile.positionId}</span>
               </div>
               <div className="profile-item">
                 <label>Date of Birth: </label>
@@ -442,33 +306,33 @@ const Employees = () => {
                 <label>Status: </label>
                 <span>{selectedProfile.status}</span>
               </div>
+              <div className="profile-item">
+                <label>Email: </label>
+                <span>{selectedProfile.email}</span>
+              </div>
             </div>
-
             <div className="profile-message">
               <label>Birthday message: </label>
               <p>{selectedProfile.birthdayMessage}</p>
             </div>
-
             <div className="form-actions">
               <Button
                 label="Edit Employee"
                 onClick={() => {
-                  handleEditEmployee(selectedProfile);
+                  // Find full employee object and edit
+                  const fullEmp = employees.find(e => e.EmployeeID === selectedProfile.id);
+                  if (fullEmp) handleEditEmployee(fullEmp);
                   setIsProfileOpen(false);
                 }}
                 variant="primary"
               />
-              <Button
-                label="Close"
-                onClick={() => setIsProfileOpen(false)}
-                variant="secondary"
-              />
+              <Button label="Close" onClick={() => setIsProfileOpen(false)} variant="secondary" />
             </div>
           </div>
         )}
       </Modal>
 
-      {/* Modal for Add/Edit */}
+      {/* Add/Edit Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -479,8 +343,8 @@ const Employees = () => {
             <label>Name</label>
             <input
               type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.FullName}
+              onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
               placeholder="Employee name"
             />
           </div>
@@ -488,13 +352,13 @@ const Employees = () => {
           <div className="form-group">
             <label>Department</label>
             <select
-              value={formData.department}
-              onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+              value={formData.DepartmentID}
+              onChange={(e) => setFormData({ ...formData, DepartmentID: e.target.value })}
             >
               <option value="">Select Department</option>
-              {departmentOptions.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
+              {departments.map((d) => (
+                <option key={d.DepartmentID} value={d.DepartmentID}>
+                  {d.DepartmentName}
                 </option>
               ))}
             </select>
@@ -502,38 +366,33 @@ const Employees = () => {
 
           <div className="form-group">
             <label>Position</label>
-            <input
-              type="text"
-              value={formData.position}
-              onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-              placeholder="Position"
-            />
+            <select
+              value={formData.PositionID}
+              onChange={(e) => setFormData({ ...formData, PositionID: e.target.value })}
+            >
+              <option value="">Select Position</option>
+              {positions.map((p) => (
+                <option key={p.PositionID} value={p.PositionID}>
+                  {p.PositionName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
             <label>Date of Birth</label>
             <input
               type="date"
-              value={formData.dob}
-              onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Salary ($)</label>
-            <input
-              type="number"
-              value={formData.salary}
-              onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-              placeholder="0"
+              value={formData.DateOfBirth}
+              onChange={(e) => setFormData({ ...formData, DateOfBirth: e.target.value })}
             />
           </div>
 
           <div className="form-group">
             <label>Status</label>
             <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              value={formData.Status}
+              onChange={(e) => setFormData({ ...formData, Status: e.target.value })}
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
@@ -542,21 +401,13 @@ const Employees = () => {
           </div>
 
           <div className="form-actions">
-            <Button
-              label="Save"
-              onClick={handleSaveEmployee}
-              variant="primary"
-            />
-            <Button
-              label="Cancel"
-              onClick={() => setIsModalOpen(false)}
-              variant="secondary"
-            />
+            <Button label="Save" onClick={handleSaveEmployee} variant="primary" />
+            <Button label="Cancel" onClick={() => setIsModalOpen(false)} variant="secondary" />
             {editingEmployee && (
               <Button
                 label="Delete"
                 onClick={() => {
-                  handleDeleteEmployee(editingEmployee.id);
+                  handleDeleteEmployee(editingEmployee.EmployeeID);
                   setIsModalOpen(false);
                 }}
                 variant="danger"

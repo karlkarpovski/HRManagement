@@ -49,10 +49,12 @@ def verify_user(username, password):
 
 def log_to_auth(user_id, action, endpoint, status):
     with engine_auth.connect() as conn:
+        # Status column in AuditLogs is INT (200 = success)
+        status_int = 200 if status == "Success" else (int(status) if isinstance(status, (int, str)) and str(status).isdigit() else 400)
         conn.execute(text("""
             INSERT INTO AuditLogs (UserID, Action, Endpoint, Status, Timestamp)
             VALUES (:u, :a, :e, :s, :t)"""),
-            {"u": user_id, "a": action, "e": endpoint, "s": status, "t": datetime.datetime.now()}
+            {"u": user_id, "a": action, "e": endpoint, "s": status_int, "t": datetime.datetime.now()}
         )
         conn.commit()
         

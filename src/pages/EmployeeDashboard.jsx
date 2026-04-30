@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BellRing,
   CalendarCheck2,
@@ -24,64 +24,10 @@ import {
   CircleCheckBig,
   CircleAlert,
   CircleX,
-  MonitorUp,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import api from '../api/axios';
 import '../styles/employee-dashboard.css';
-
-const employee = {
-  name: 'Amina Rahman',
-  title: 'Senior Product Designer',
-  department: 'Product Design',
-  employeeId: 'EMP-2048',
-  email: 'amina.rahman@northstarhr.com',
-  phone: '+1 (555) 219-4088',
-  address: '28 Riverbend Avenue, San Jose, CA',
-  profilePicture: 'AR',
-  role: 'Employee',
-};
-
-const attendance = {
-  checkIn: '08:57 AM',
-  checkOut: '05:41 PM',
-  totalHours: '8h 44m',
-};
-
-const leaveBalance = [
-  { label: 'Annual leave', value: '12 days', tone: 'good' },
-  { label: 'Sick leave', value: '5 days', tone: 'warning' },
-  { label: 'Personal leave', value: '3 days', tone: 'neutral' },
-];
-
-const payroll = {
-  latestSalary: '$6,800',
-  nextPayment: '30 Apr 2026',
-  payCycle: 'Monthly payroll processed on the last business day.',
-};
-
-const recentRequests = [
-  { id: 1, type: 'Leave request', date: '22 Apr 2026', status: 'Approved', detail: 'Annual leave for 25-26 Apr' },
-  { id: 2, type: 'Reimbursement', date: '20 Apr 2026', status: 'Pending', detail: 'Travel expenses for client workshop' },
-  { id: 3, type: 'Remote work', date: '16 Apr 2026', status: 'Rejected', detail: 'Work-from-home request for 19 Apr' },
-];
-
-const announcements = [
-  {
-    id: 1,
-    title: 'Quarterly performance reviews',
-    text: 'Review cycles open next Monday. Please update your self-assessment before the deadline.',
-  },
-  {
-    id: 2,
-    title: 'Payroll processing reminder',
-    text: 'April payroll will be processed on 30 Apr. Submit any reimbursement changes before 4 PM.',
-  },
-  {
-    id: 3,
-    title: 'Office holiday notice',
-    text: 'The office will be closed on 1 May for the public holiday. Work schedules will remain flexible.',
-  },
-];
 
 const statusMeta = {
   Approved: { icon: CircleCheckBig, className: 'is-approved' },
@@ -96,8 +42,6 @@ const roleNav = [
   { label: 'Payroll', icon: Wallet, target: 'payroll' },
   { label: 'Requests', icon: ClipboardList, target: 'requests' },
 ];
-
-
 
 function Avatar({ label }) {
   return <div className='employee-avatar'>{label}</div>;
@@ -124,6 +68,134 @@ export default function EmployeeDashboard({ onLogout }) {
   const { isDark, toggleTheme } = useTheme();
   const sectionRefs = useRef({});
 
+  // Real employee data from API
+  const [employeeData, setEmployeeData] = useState(null);
+  const [attendance, setAttendance] = useState(null);
+  const [payrollHistory, setPayrollHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        // Get logged-in user info
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+          setLoading(false);
+          return;
+        }
+        const user = JSON.parse(userStr);
+        
+        // Fetch employee from API by ID
+        const empRes = await api.get(`/employees/${user.id}`);
+        const emp = empRes.data;
+        
+        setEmployeeData({
+          name: emp.FullName || user.fullname || user.username,
+          title: emp.PositionName || 'Employee',
+          department: emp.DepartmentName || `Department ${emp.DepartmentID || ''}`,
+          employeeId: `EMP-${emp.EmployeeID || user.id}`,
+          email: emp.Email || '',
+          phone: emp.Phone || '',
+          address: emp.Address || '',
+          profilePicture: (emp.FullName || 'U').split(' ').map(w => w[0]).join('').slice(0, 2),
+          role: user.role || 'Employee',
+        });
+
+        // Fetch attendance - DB columns: AttendanceID, EmployeeID, WorkDays, AbsentDays, LeaveDays, AttendanceMonth
+        try {
+          const attRes = await api.get(`/attendance/${user.id}`);
+          const attArr = Array.isArray(attRes.data) ? attRes.data : [];
+          if (attArr.length > 0) {
+            const latest = attArr[0];
+            setAttendance({
+              workDays: latest.WorkDays || 0,
+              absentDays: latest.AbsentDays || 0,
+              leaveDays: latest.LeaveDays || 0,
+              month: latest.AttendanceMonth || 'N/A',
+            });
+          } else {
+            setAttendance({ workDays: 0, absentDays: 0, leaveDays: 0, month: 'N/A' });
+          }
+        } catch {
+          setAttendance({ workDays: 0, absentDays: 0, leaveDays: 0, month: 'N/A' });
+        }
+
+        // Fetch payroll history
+        try {
+          const payRes = await api.get(`/payroll/${user.id}/history`);
+          setPayrollHistory(Array.isArray(payRes.data) ? payRes.data : []);
+        } catch {
+          setPayrollHistory([]);
+        }
+      } catch (err) {
+        console.error('Failed to load employee data:', err);
+        // Fallback to localStorage user
+        try {
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          setEmployeeData({
+            name: user.fullname || user.username || 'Employee',
+            title: user.role || 'Employee',
+            department: 'General',
+            employeeId: `EMP-${user.id || '0000'}`,
+            email: '',
+            phone: '',
+            address: '',
+            profilePicture: (user.fullname || 'EM').split(' ').map(w => w[0]).join('').slice(0, 2),
+            role: user.role || 'Employee',
+          });
+        } catch {
+          // Last resort fallback
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEmployeeData();
+  }, []);
+
+  const employee = employeeData || {
+    name: 'Employee',
+    title: 'Employee',
+    department: 'General',
+    employeeId: 'EMP-0000',
+    email: '',
+    phone: '',
+    address: '',
+    profilePicture: 'EM',
+    role: 'Employee',
+  };
+
+  const currentAttendance = attendance || { workDays: 0, absentDays: 0, leaveDays: 0, month: 'N/A' };
+
+  const latestPayroll = useMemo(() => {
+    if (payrollHistory.length === 0) return null;
+    return payrollHistory[0];
+  }, [payrollHistory]);
+
+  const leaveBalance = [
+    { label: 'Annual leave', value: '12 days', tone: 'good' },
+    { label: 'Sick leave', value: '5 days', tone: 'warning' },
+    { label: 'Personal leave', value: '3 days', tone: 'neutral' },
+  ];
+
+  const announcements = [
+    {
+      id: 1,
+      title: 'Quarterly performance reviews',
+      text: 'Review cycles open next Monday. Please update your self-assessment before the deadline.',
+    },
+    {
+      id: 2,
+      title: 'Payroll processing reminder',
+      text: 'April payroll will be processed on 30 Apr. Submit any reimbursement changes before 4 PM.',
+    },
+    {
+      id: 3,
+      title: 'Office holiday notice',
+      text: 'The office will be closed on 1 May for the public holiday. Work schedules will remain flexible.',
+    },
+  ];
+
   const navItems = useMemo(() => roleNav, []);
 
   const jumpTo = (target) => {
@@ -132,14 +204,11 @@ export default function EmployeeDashboard({ onLogout }) {
       setAvatarMenuOpen(false);
       return;
     }
-
     setActiveView('dashboard');
-
     if (typeof document !== 'undefined') {
       const section = document.getElementById(target);
       section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
     setMobileMenuOpen(false);
     setAvatarMenuOpen(false);
   };
@@ -155,7 +224,6 @@ export default function EmployeeDashboard({ onLogout }) {
               <p>{employee.title}</p>
             </div>
           </div>
-
           <div className='overview-meta'>
             <div>
               <span>Department</span>
@@ -173,26 +241,21 @@ export default function EmployeeDashboard({ onLogout }) {
         <SectionCard id='attendance' title='Attendance Summary' subtitle='Track your workday and check in or out quickly.'>
           <div className='attendance-stats'>
             <div>
-              <span>Check-in</span>
-              <strong>{attendance.checkIn}</strong>
+              <span>Work Days</span>
+              <strong>{currentAttendance.workDays}</strong>
             </div>
             <div>
-              <span>Check-out</span>
-              <strong>{attendance.checkOut}</strong>
+              <span>Absent Days</span>
+              <strong>{currentAttendance.absentDays}</strong>
             </div>
             <div>
-              <span>Total hours today</span>
-              <strong>{attendance.totalHours}</strong>
+              <span>Leave Days</span>
+              <strong>{currentAttendance.leaveDays}</strong>
             </div>
           </div>
-
           <div className='action-row'>
-            <button className='action-primary' type='button'>
-              Check In
-            </button>
-            <button className='action-secondary' type='button'>
-              Check Out
-            </button>
+            <button className='action-primary' type='button'>Check In</button>
+            <button className='action-secondary' type='button'>Check Out</button>
           </div>
         </SectionCard>
 
@@ -205,10 +268,7 @@ export default function EmployeeDashboard({ onLogout }) {
               </div>
             ))}
           </div>
-
-          <button className='action-secondary action-wide' type='button'>
-            Request Leave
-          </button>
+          <button className='action-secondary action-wide' type='button'>Request Leave</button>
         </SectionCard>
       </div>
 
@@ -217,19 +277,15 @@ export default function EmployeeDashboard({ onLogout }) {
           <div className='payroll-summary-card'>
             <div>
               <span>Latest salary</span>
-              <strong>{payroll.latestSalary}</strong>
+              <strong>{latestPayroll ? `${Number(latestPayroll.NetSalary || 0).toLocaleString()}₫` : '0₫'}</strong>
             </div>
             <div>
-              <span>Next payment</span>
-              <strong>{payroll.nextPayment}</strong>
+              <span>Pay period</span>
+              <strong>{latestPayroll?.SalaryMonth ? String(latestPayroll.SalaryMonth).slice(0, 7) : 'N/A'}</strong>
             </div>
           </div>
-
-          <p className='muted-copy'>{payroll.payCycle}</p>
-
-          <button className='action-primary action-wide' type='button'>
-            View Payslip
-          </button>
+          <p className='muted-copy'>Monthly payroll processed on the last business day.</p>
+          <button className='action-primary action-wide' type='button'>View Payslip</button>
         </SectionCard>
 
         <SectionCard id='announcements' title='Announcements' subtitle='Company updates and HR reminders.'>
@@ -247,26 +303,25 @@ export default function EmployeeDashboard({ onLogout }) {
         </SectionCard>
       </div>
 
-      <SectionCard id='requests' title='Recent Requests' subtitle='Track your latest leave and reimbursement requests.'>
+      <SectionCard id='requests' title='Recent Payroll History'>
         <div className='request-list'>
-          {recentRequests.map((item) => {
-            const meta = statusMeta[item.status];
-            const StatusIcon = meta.icon;
-
-            return (
-              <article key={item.id} className='request-item'>
+          {payrollHistory.length > 0 ? (
+            payrollHistory.slice(0, 5).map((item, i) => (
+              <article key={i} className='request-item'>
                 <div>
-                  <strong>{item.type}</strong>
-                  <p>{item.detail}</p>
-                  <span>{item.date}</span>
+                  <strong>Kỳ lương {item.SalaryMonth ? String(item.SalaryMonth).slice(0, 7) : '#' + (item.SalaryID || i)}</strong>
+                  <p>Net: {Number(item.NetSalary || 0).toLocaleString()}₫</p>
+                  <span>Base: {Number(item.BaseSalary || 0).toLocaleString()}₫</span>
                 </div>
-                <div className={`status-pill ${meta.className}`}>
-                  <StatusIcon size={14} />
-                  {item.status}
+                <div className='status-pill is-approved'>
+                  <BadgeCheck size={14} />
+                  Processed
                 </div>
               </article>
-            );
-          })}
+            ))
+          ) : (
+            <p style={{ color: '#8ca0af', padding: 12 }}>No payroll history available.</p>
+          )}
         </div>
       </SectionCard>
     </div>
@@ -287,42 +342,29 @@ export default function EmployeeDashboard({ onLogout }) {
         <div className='employee-card profile-readonly'>
           <h3>Read-only details</h3>
           <div className='profile-detail-list'>
-            <div>
-              <span>Employee ID</span>
-              <strong>{employee.employeeId}</strong>
-            </div>
-            <div>
-              <span>Department</span>
-              <strong>{employee.department}</strong>
-            </div>
-            <div>
-              <span>Role</span>
-              <strong>{employee.role}</strong>
-            </div>
+            <div><span>Employee ID</span><strong>{employee.employeeId}</strong></div>
+            <div><span>Department</span><strong>{employee.department}</strong></div>
+            <div><span>Role</span><strong>{employee.role}</strong></div>
           </div>
         </div>
 
         <form className='employee-card profile-form'>
-          <h3>Edit contact information</h3>
+          <h3>Contact information</h3>
           <label>
             <span>Email</span>
-            <input type='email' defaultValue={employee.email} />
+            <input type='email' defaultValue={employee.email} placeholder='Not available' />
           </label>
           <label>
             <span>Phone</span>
-            <input type='tel' defaultValue={employee.phone} />
+            <input type='tel' defaultValue={employee.phone} placeholder='Not available' />
           </label>
           <label className='full-width'>
             <span>Address</span>
-            <textarea rows='4' defaultValue={employee.address} />
+            <textarea rows='4' defaultValue={employee.address} placeholder='Not available' />
           </label>
           <div className='action-row'>
-            <button className='action-primary' type='button'>
-              Save Changes
-            </button>
-            <button className='action-secondary' type='button' onClick={() => setActiveView('dashboard')}>
-              Back to Dashboard
-            </button>
+            <button className='action-primary' type='button'>Save Changes</button>
+            <button className='action-secondary' type='button' onClick={() => setActiveView('dashboard')}>Back to Dashboard</button>
           </div>
         </form>
       </div>
@@ -347,7 +389,6 @@ export default function EmployeeDashboard({ onLogout }) {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === 'profile' ? item.target === 'profile' : item.target === 'dashboard';
-
             return (
               <button key={item.label} type='button' className={`topbar-link ${isActive ? 'active' : ''}`} onClick={() => jumpTo(item.target)}>
                 <Icon size={16} />
@@ -359,7 +400,7 @@ export default function EmployeeDashboard({ onLogout }) {
 
         <div className='avatar-menu-wrap'>
           <button type='button' className='avatar-menu-trigger' onClick={() => setAvatarMenuOpen((current) => !current)}>
-            <Avatar label='AR' />
+            <Avatar label={employee.profilePicture} />
             <span>
               {employee.name}
               <ChevronDown size={16} />
@@ -369,20 +410,17 @@ export default function EmployeeDashboard({ onLogout }) {
           {avatarMenuOpen && (
             <div className='avatar-dropdown'>
               <button type='button' onClick={() => jumpTo('profile')}>
-                <UserCircle2 size={16} />
-                Profile
+                <UserCircle2 size={16} /> Profile
               </button>
               <button type='button' onClick={() => jumpTo('profile')}>
-                <Settings size={16} />
-                Settings
+                <Settings size={16} /> Settings
               </button>
               <button type='button' onClick={toggleTheme}>
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}
                 {isDark ? 'Light' : 'Dark'} mode
               </button>
               <button type='button' onClick={onLogout}>
-                <LogOut size={16} />
-                Logout
+                <LogOut size={16} /> Logout
               </button>
             </div>
           )}
@@ -398,17 +436,13 @@ export default function EmployeeDashboard({ onLogout }) {
               <span>{employee.department}</span>
             </div>
           </div>
-
-          
-
           <div className='sidebar-footer-card'>
             <div>
-              <span>Next shift: </span>
-              <strong>Mon, 29 Apr 2026</strong>
+              <span>Employee ID: </span>
+              <strong>{employee.employeeId}</strong>
             </div>
             <button type='button' className='logout-link' onClick={onLogout}>
-              <LogOut size={16} />
-              Sign out
+              <LogOut size={16} /> Sign out
             </button>
           </div>
         </aside>
@@ -417,7 +451,6 @@ export default function EmployeeDashboard({ onLogout }) {
           {activeView === 'profile' ? renderProfile() : renderDashboard()}
         </main>
       </div>
-
       <div className='mobile-backdrop' aria-hidden='true' onClick={() => setMobileMenuOpen(false)} />
     </div>
   );

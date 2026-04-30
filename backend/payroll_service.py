@@ -5,10 +5,9 @@ from db import engine_payroll
 # --- NHÓM PAYROLL APIS ---
 
 def get_all_payroll():
-    """Truy xuất toàn bộ bản ghi lương từ PAYROLL.salaries [cite: 230, 231]"""
+    """Truy xuất toàn bộ bản ghi lương từ PAYROLL.salaries"""
     try:
         with engine_payroll.connect() as conn:
-            # Query lấy dữ liệu từ bảng salaries trong MySQL
             query = text("SELECT * FROM salaries")
             data = conn.execute(query).mappings().all()
         return jsonify([dict(row) for row in data]), 200
@@ -16,13 +15,14 @@ def get_all_payroll():
         return jsonify({"error": str(e)}), 500
 
 def get_payroll_history(emp_id):
-    """Lấy lịch sử lương của 1 nhân viên cụ thể [cite: 230]"""
+    """Lấy lịch sử lương của 1 nhân viên cụ thể"""
     try:
         with engine_payroll.connect() as conn:
+            # salaries table uses SalaryMonth (DATE), not PayDate
             query = text("""
                 SELECT * FROM salaries 
                 WHERE EmployeeID = :id 
-                ORDER BY PayDate DESC
+                ORDER BY SalaryMonth DESC
             """)
             data = conn.execute(query, {"id": emp_id}).mappings().all()
             
@@ -36,7 +36,7 @@ def get_payroll_history(emp_id):
 # --- NHÓM ATTENDANCE APIS ---
 
 def get_all_attendance():
-    """Truy xuất toàn bộ dữ liệu điểm danh từ payroll.attendance [cite: 233, 234]"""
+    """Truy xuất toàn bộ dữ liệu điểm danh từ payroll.attendance"""
     try:
         with engine_payroll.connect() as conn:
             query = text("SELECT * FROM attendance")
@@ -46,7 +46,7 @@ def get_all_attendance():
         return jsonify({"error": str(e)}), 500
 
 def get_attendance_by_employee(emp_id):
-    """Truy xuất điểm danh của 1 nhân viên [cite: 233]"""
+    """Truy xuất điểm danh của 1 nhân viên"""
     try:
         with engine_payroll.connect() as conn:
             query = text("SELECT * FROM attendance WHERE EmployeeID = :id")

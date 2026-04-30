@@ -1,57 +1,85 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import api from '../api/axios';
 import '../styles/pages.css';
 
 const Reports = () => {
-  const [reportType, setReportType] = useState('salary');
-  const [dateRange, setDateRange] = useState({
-    startDate: '2024-01-01',
-    endDate: '2024-01-31',
-  });
+  const [reportType, setReportType] = useState('hr');
+  const [hrReport, setHrReport] = useState([]);
+  const [payrollReport, setPayrollReport] = useState([]);
+  const [dividendReport, setDividendReport] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const salaryData = [
-    { range: '0-5K', count: 20, percentage: 16 },
-    { range: '5K-10K', count: 65, percentage: 52 },
-    { range: '10K-15K', count: 30, percentage: 24 },
-    { range: '15K+', count: 10, percentage: 8 },
-  ];
-
-  const departmentData = [
-    { name: 'IT', employees: 45, avgSalary: 8500, budget: 382500 },
-    { name: 'Finance', employees: 25, avgSalary: 7200, budget: 180000 },
-    { name: 'Sales', employees: 40, avgSalary: 6800, budget: 272000 },
-    { name: 'HR', employees: 15, avgSalary: 7000, budget: 105000 },
-  ];
-
-  const attendanceData = [
-    { status: 'Present', count: 590, percentage: 94 },
-    { status: 'Absent', count: 20, percentage: 3 },
-    { status: 'Late', count: 15, percentage: 2 },
-    { status: 'Leave', count: 5, percentage: 1 },
-  ];
-
-  const handleExportPDF = () => {
-    alert(`📄 Export PDF Report for ${reportType} (${dateRange.startDate} to ${dateRange.endDate})`);
+  const fetchData = async (type) => {
+    setLoading(true);
+    try {
+      if (type === 'hr') {
+        const res = await api.get('/reports/hr');
+        setHrReport(Array.isArray(res.data) ? res.data : []);
+      } else if (type === 'payroll') {
+        const res = await api.get('/reports/payroll');
+        setPayrollReport(Array.isArray(res.data) ? res.data : []);
+      } else if (type === 'dividends') {
+        const res = await api.get('/reports/dividends');
+        setDividendReport(Array.isArray(res.data) ? res.data : []);
+      } else if (type === 'attendance') {
+        const res = await api.get('/attendance');
+        setAttendance(Array.isArray(res.data) ? res.data : []);
+      }
+    } catch (err) {
+      console.error('Report fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleExportExcel = () => {
-    alert(`📊 Export Excel Report for ${reportType} (${dateRange.startDate} to ${dateRange.endDate})`);
+  useEffect(() => {
+    fetchData(reportType);
+  }, [reportType]);
+
+  const handleExport = (format) => {
+    const reportName = reportType.charAt(0).toUpperCase() + reportType.slice(1);
+    alert(`📄 Export ${reportName} Report as ${format}`);
   };
 
-  const handlePrint = () => {
-    window.print();
+  const renderTable = (columns, data) => {
+    if (!data || data.length === 0) {
+      return <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>No data available</p>;
+    }
+    return (
+      <div className="summary-table">
+        <table>
+          <thead>
+            <tr>
+              {columns.map((col) => (
+                <th key={col.key}>{col.label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, i) => (
+              <tr key={i}>
+                {columns.map((col) => (
+                  <td key={col.key}>{row[col.key] !== undefined ? String(row[col.key]) : 'N/A'}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   return (
     <div className="page-container">
       <Header
         title="Reports & Analytics"
-        subtitle="View and export comprehensive reports"
+        subtitle="View and export comprehensive reports from the system"
       />
 
-      {/* Report Controls */}
       <Card title="Report Settings">
         <div className="report-controls">
           <div className="form-group">
@@ -61,233 +89,84 @@ const Reports = () => {
               onChange={(e) => setReportType(e.target.value)}
               className="form-control"
             >
-              <option value="salary">Salary Report</option>
-              <option value="department">Department Report</option>
+              <option value="hr">HR Report (Employees by Dept)</option>
+              <option value="payroll">Payroll Report (Earnings by Employee)</option>
               <option value="attendance">Attendance Report</option>
-              <option value="payroll">Payroll Report</option>
+              <option value="dividends">Dividend History</option>
             </select>
           </div>
 
-          <div className="form-group">
-            <label>Start Date</label>
-            <input
-              type="date"
-              value={dateRange.startDate}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, startDate: e.target.value })
-              }
-              className="form-control"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>End Date</label>
-            <input
-              type="date"
-              value={dateRange.endDate}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, endDate: e.target.value })
-              }
-              className="form-control"
-            />
-          </div>
-
           <div className="form-actions">
-            <Button
-              label="📄 PDF Export"
-              onClick={handleExportPDF}
-              variant="primary"
-            />
-            <Button
-              label="📊 Excel Export"
-              onClick={handleExportExcel}
-              variant="primary"
-            />
-            <Button
-              label="🖨️ Print"
-              onClick={handlePrint}
-              variant="secondary"
-            />
+            <Button label="📄 Export PDF" onClick={() => handleExport('PDF')} variant="primary" />
+            <Button label="📊 Export Excel" onClick={() => handleExport('Excel')} variant="primary" />
+            <Button label="🔄 Refresh" onClick={() => fetchData(reportType)} variant="secondary" />
           </div>
         </div>
       </Card>
 
-      {/* Dynamic Reports */}
-      {reportType === 'salary' && (
-        <>
-          <Card title="Salary Distribution">
-            <div className="report-chart">
-              {salaryData.map((item) => (
-                <div key={item.range} className="chart-item">
-                  <div className="item-label">
-                    <strong>{item.range}</strong>
-                    <span className="item-count">{item.count} employees</span>
-                  </div>
-                  <div className="bar-bg">
-                    <div className="bar-fill" style={{ width: `${item.percentage}%` }}>
-                      {item.percentage}%
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+      {loading && <Card title="Loading..."><p style={{ color: '#8ca0af' }}>Đang tải dữ liệu...</p></Card>}
 
-          <Card title="Salary Summary">
-            <div className="summary-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Salary Range</th>
-                    <th>Employees</th>
-                    <th>Percentage</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {salaryData.map((item) => (
-                    <tr key={item.range}>
-                      <td>{item.range}</td>
-                      <td>{item.count}</td>
-                      <td>{item.percentage}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </>
+      {!loading && reportType === 'hr' && (
+        <Card title={`HR Report - Employees by Department (${hrReport.length})`}>
+          {renderTable(
+            [
+              { key: 'DepartmentName', label: 'Department' },
+              { key: 'TotalEmployees', label: 'Total Employees' },
+            ],
+            hrReport
+          )}
+        </Card>
       )}
 
-      {reportType === 'department' && (
-        <>
-          <Card title="Department Overview">
-            <div className="summary-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Department</th>
-                    <th>Employees</th>
-                    <th>Avg Salary</th>
-                    <th>Total Budget</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {departmentData.map((dept) => (
-                    <tr key={dept.name}>
-                      <td>{dept.name}</td>
-                      <td>{dept.employees}</td>
-                      <td>$ {dept.avgSalary.toLocaleString()}</td>
-                      <td>$ {dept.budget.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+      {!loading && reportType === 'payroll' && (
+        <Card title={`Payroll Report - Total Earnings by Employee (${payrollReport.length})`}>
+          {renderTable(
+            [
+              { key: 'EmployeeID', label: 'Employee ID' },
+              { key: 'FullName', label: 'Full Name' },
+              { key: 'DepartmentName', label: 'Department' },
+              { key: 'TotalEarnings', label: 'Total Earnings (₫)' },
+            ],
+            payrollReport.map((r) => ({
+              ...r,
+              TotalEarnings: Number(r.TotalEarnings || 0).toLocaleString('vi-VN') + '₫',
+            }))
+          )}
 
-          <Card title="Employees by Department">
-            <div className="report-chart">
-              {departmentData.map((dept) => (
-                <div key={dept.name} className="chart-item">
-                  <div className="item-label">
-                    <strong>{dept.name}</strong>
-                    <span className="item-count">{dept.employees} employees</span>
-                  </div>
-                  <div className="bar-bg">
-                    <div className="bar-fill" style={{ width: `${(dept.employees / 50) * 100}%` }}>
-                      {dept.employees}
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {payrollReport.length > 0 && (
+            <div style={{ marginTop: 16, padding: '12px 16px', background: '#f0f8fa', borderRadius: 8 }}>
+              <strong>Total Payroll: </strong>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#1a2a38' }}>
+                {(payrollReport.reduce((s, r) => s + (Number(r.TotalEarnings) || 0), 0)).toLocaleString('vi-VN')}₫
+              </span>
             </div>
-          </Card>
-        </>
+          )}
+        </Card>
       )}
 
-      {reportType === 'attendance' && (
-        <>
-          <Card title="Attendance Summary">
-            <div className="summary-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Count</th>
-                    <th>Percentage</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendanceData.map((item) => (
-                    <tr key={item.status}>
-                      <td>{item.status}</td>
-                      <td>{item.count}</td>
-                      <td>{item.percentage}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          <Card title="Attendance Distribution">
-            <div className="report-chart">
-              {attendanceData.map((item) => (
-                <div key={item.status} className="chart-item">
-                  <div className="item-label">
-                    <strong>{item.status}</strong>
-                    <span className="item-count">{item.count}</span>
-                  </div>
-                  <div className="bar-bg">
-                    <div className="bar-fill" style={{ width: `${item.percentage * 10}%` }}>
-                      {item.percentage}%
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </>
+      {!loading && reportType === 'attendance' && (
+        <Card title={`Attendance Report (${attendance.length} records)`}>
+          {attendance.length > 0 ? (
+            renderTable(
+              Object.keys(attendance[0] || {}).map((k) => ({ key: k, label: k })),
+              attendance
+            )
+          ) : (
+            <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>No attendance records found.</p>
+          )}
+        </Card>
       )}
 
-      {reportType === 'payroll' && (
-        <Card title="Payroll Summary">
-          <div className="summary-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Base Salary</th>
-                  <th>Bonus</th>
-                  <th>Penalty</th>
-                  <th>Net Payroll</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>January 2024</td>
-                  <td>$ 850,000</td>
-                  <td>$ 45,000</td>
-                  <td>$ 12,000</td>
-                  <td>$ 883,000</td>
-                </tr>
-                <tr>
-                  <td>February 2024</td>
-                  <td>$ 850,000</td>
-                  <td>$ 38,000</td>
-                  <td>$ 8,000</td>
-                  <td>$ 880,000</td>
-                </tr>
-                <tr>
-                  <td>March 2024</td>
-                  <td>$ 850,000</td>
-                  <td>$ 52,000</td>
-                  <td>$ 15,000</td>
-                  <td>$ 887,000</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      {!loading && reportType === 'dividends' && (
+        <Card title={`Dividend History (${dividendReport.length} records)`}>
+          {dividendReport.length > 0 ? (
+            renderTable(
+              Object.keys(dividendReport[0] || {}).map((k) => ({ key: k, label: k })),
+              dividendReport
+            )
+          ) : (
+            <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>No dividend records found.</p>
+          )}
         </Card>
       )}
     </div>
