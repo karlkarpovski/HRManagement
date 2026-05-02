@@ -16,6 +16,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import api from '../api/axios';
+import { formatVND } from '../utils/currency';
 import '../styles/dashboard.css';
 
 const ThemeContext = createContext();
@@ -45,7 +46,7 @@ function ThemeProvider({ children }) {
   return <ThemeContext.Provider value={{ dark, toggle }}>{children}</ThemeContext.Provider>;
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS = ['Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12'];
 
 const perfColor = (p) =>
   ({
@@ -92,10 +93,6 @@ function Avatar({ name, size = 32 }) {
   );
 }
 
-function formatVND(amount) {
-  return Number(amount || 0).toLocaleString('vi-VN') + '₫';
-}
-
 function StatCard({ icon, label, value, delta, dark }) {
   return (
     <div
@@ -110,6 +107,7 @@ function StatCard({ icon, label, value, delta, dark }) {
         boxShadow: dark ? '0 2px 12px #0005' : '0 2px 12px #0000000d',
         flex: 1,
         minWidth: 180,
+        overflow: 'hidden',
       }}
     >
       <div
@@ -129,14 +127,14 @@ function StatCard({ icon, label, value, delta, dark }) {
       >
         {icon}
       </div>
-      <div>
-        <div style={{ fontSize: 11, color: dark ? '#8ba3b8' : '#8ca0af', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 4 }}>
+      <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+        <div style={{ fontSize: 11, color: dark ? '#8ba3b8' : '#8ca0af', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {label}
         </div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: dark ? '#e8f0f8' : '#1a2a38', lineHeight: 1, fontFamily: 'DM Mono, monospace' }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: dark ? '#e8f0f8' : '#1a2a38', lineHeight: 1, fontFamily: 'DM Mono, monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {value}
         </div>
-        {delta && <div style={{ fontSize: 11, color: '#3cbaba', fontWeight: 600, marginTop: 3 }}>{delta}</div>}
+        {delta && <div style={{ fontSize: 11, color: '#3cbaba', fontWeight: 600, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{delta}</div>}
       </div>
     </div>
   );
@@ -260,41 +258,41 @@ function DashboardPage() {
   const enrichedEmployees = useMemo(() => {
     return employees.map((emp) => ({
       id: emp.EmployeeID,
-      name: emp.FullName || 'Unknown',
-      role: posMap[emp.PositionID] || 'Employee',
-      dept: deptMap[emp.DepartmentID] || 'General',
-      status: emp.Status || 'Active',
+      name: emp.FullName || 'Không xác định',
+      role: posMap[emp.PositionID] || 'Nhân viên',
+      dept: deptMap[emp.DepartmentID] || 'Tổng quát',
+      status: emp.Status || 'Đang hoạt động',
     }));
   }, [employees, deptMap, posMap]);
 
-  // Real stats - salaries table columns: SalaryID, EmployeeID, SalaryMonth, BaseSalary, Bonus, Deductions, NetSalary
+  // Real stats
   const totalEmployees = employees.length;
   const activeCount = employees.filter((e) => !e.Status || e.Status === 'Active').length;
   const totalSalary = payrollData.reduce((sum, p) => sum + (parseFloat(p.NetSalary) || 0), 0);
   const alertCount = alerts.length;
 
   const statsData = [
-    { icon: 'EMP', label: 'Total Employees', value: String(totalEmployees), delta: `${activeCount} active` },
-    { icon: 'NEW', label: 'Departments', value: String(departments.length), delta: `${positions.length} positions` },
-    { icon: 'PAY', label: 'Total Payroll', value: formatVND(totalSalary), delta: `${payrollData.length} records` },
-    { icon: 'ALT', label: 'Alerts', value: String(alertCount), delta: 'System notifications' },
+    { icon: 'NV', label: 'Tổng nhân viên', value: String(totalEmployees), delta: `${activeCount} đang hoạt động` },
+    { icon: 'PB', label: 'Phòng ban', value: String(departments.length), delta: `${positions.length} chức danh` },
+    { icon: 'TL', label: 'Tổng quỹ lương', value: formatVND(totalSalary), delta: `${payrollData.length} bản ghi` },
+    { icon: 'CB', label: 'Cảnh báo', value: String(alertCount), delta: 'Thông báo hệ thống' },
   ];
 
   // Alert notifications
   const alertNotifications = useMemo(() => {
     return alerts.slice(0, 8).map((a, i) => ({
       id: `alert-${i}`,
-      text: a.message || a.type || `Alert #${i + 1}`,
-      sub: a.type || 'Notification',
+      text: a.message || a.type || `Cảnh báo #${i + 1}`,
+      sub: a.type || 'Thông báo',
       done: false,
     }));
   }, [alerts]);
 
-  // Salary distribution by dept for pie chart (from payroll data)
+  // Salary distribution by dept for pie chart
   const salaryByDeptPie = useMemo(() => {
     const deptSalaries = {};
     employees.forEach((emp) => {
-      const deptName = deptMap[emp.DepartmentID] || 'Other';
+      const deptName = deptMap[emp.DepartmentID] || 'Khác';
       const empPayroll = payrollData.filter((p) => p.EmployeeID === emp.EmployeeID);
       const total = empPayroll.reduce((sum, p) => sum + (parseFloat(p.NetSalary) || 0), 0);
       deptSalaries[deptName] = (deptSalaries[deptName] || 0) + total;
@@ -312,7 +310,7 @@ function DashboardPage() {
   const headcountByDept = useMemo(() => {
     return hrReport.map((r, i) => ({
       quarter: `Q${(i % 4) + 1}`,
-      name: r.DepartmentName || 'Unknown',
+      name: r.DepartmentName || 'Không xác định',
       count: r.TotalEmployees || 0,
     }));
   }, [hrReport]);
@@ -343,7 +341,7 @@ function DashboardPage() {
   const positionDist = useMemo(() => {
     const count = {};
     employees.forEach((emp) => {
-      const posName = posMap[emp.PositionID] || 'Unknown';
+      const posName = posMap[emp.PositionID] || 'Không xác định';
       count[posName] = (count[posName] || 0) + 1;
     });
     const total = employees.length || 1;
@@ -357,27 +355,91 @@ function DashboardPage() {
 
   // Monthly salary trends from payroll data
   const salaryByUnit = useMemo(() => {
-    return MONTHS.map((month, i) => {
+    const monthlyData = {};
+    
+    payrollData.forEach((salary) => {
+      const monthStr = new Date(salary.SalaryMonth).toLocaleString('en', { month: 'short' });
+      const emp = employees.find(e => e.EmployeeID === salary.EmployeeID);
+      const deptName = emp ? (deptMap[emp.DepartmentID] || 'Không xác định') : 'Không xác định';
+      
+      if (!monthlyData[monthStr]) {
+        monthlyData[monthStr] = {};
+      }
+      if (!monthlyData[monthStr][deptName]) {
+        monthlyData[monthStr][deptName] = 0;
+      }
+      monthlyData[monthStr][deptName] += parseFloat(salary.NetSalary) || 0;
+    });
+    
+    return MONTHS.map((month) => {
       const item = { month };
-      departments.forEach((dept, di) => {
-        item[dept.DepartmentName || `Dept${di}`] = 20 + Math.round(Math.sin(i * 0.5 + di) * 15 + 30);
+      departments.forEach((dept) => {
+        item[dept.DepartmentName || 'Không xác định'] = monthlyData[month]?.[dept.DepartmentName] || 0;
       });
       return item;
+    }).filter((item, index, arr) => {
+      return arr.some(other => 
+        MONTHS.indexOf(other.month) >= MONTHS.indexOf(item.month) && 
+        departments.some(dept => item[dept.DepartmentName] > 0)
+      ) || index === 0;
     });
-  }, [departments]);
+  }, [payrollData, employees, departments, deptMap]);
 
   const toggleTodo = (id) => setTodos((list) => list.map((x) => (x.id === id ? { ...x, done: !x.done } : x)));
+
+  // Custom tick renderer for XAxis with text wrapping
+  const renderCustomXAxisTick = (tickProps) => {
+    const { x, y, payload } = tickProps;
+    const maxCharsPerLine = 10;
+    const text = payload.value || '';
+    
+    const wrapText = (text, maxLen) => {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+      
+      words.forEach((word) => {
+        if ((currentLine + ' ' + word).trim().length <= maxLen) {
+          currentLine = (currentLine + ' ' + word).trim();
+        } else {
+          if (currentLine) lines.push(currentLine);
+          currentLine = word;
+        }
+      });
+      if (currentLine) lines.push(currentLine);
+      return lines;
+    };
+    
+    const lines = wrapText(text, maxCharsPerLine);
+    
+    return (
+      <g transform={`translate(${x},${y})`}>
+        {lines.map((line, index) => (
+          <text
+            key={index}
+            x={0}
+            y={index * 12}
+            textAnchor="middle"
+            fill={muted}
+            fontSize={10}
+          >
+            {line}
+          </text>
+        ))}
+      </g>
+    );
+  };
 
   return (
     <div className={dark ? 'dashboard-template dashboard-template-dark' : 'dashboard-template'}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px', background: dark ? '#162030' : '#fff', borderBottom: `1px solid ${border}` }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: text, letterSpacing: '-0.01em' }}>HR Dashboard</div>
-        <div style={{ fontSize: 12, color: muted, marginRight: 'auto' }}>HRMS / Dashboard</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: text, letterSpacing: '-0.01em' }}>Bảng Điều Khiển HR</div>
+        <div style={{ fontSize: 12, color: muted, marginRight: 'auto' }}>HRMS / Bảng Điều Khiển</div>
         <div style={{ fontSize: 12, color: muted, fontWeight: 600 }}>{nowDisplay}</div>
 
         <div style={{ position: 'relative' }}>
           <input
-            placeholder='Search employees...'
+            placeholder='Tìm kiếm nhân viên...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => setSearchFocused(true)}
@@ -393,12 +455,12 @@ function DashboardPage() {
               outline: 'none',
             }}
           />
-          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: muted, fontSize: 11 }}>FIND</span>
+          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: muted, fontSize: 11 }}>TÌM</span>
         </div>
 
         <button
           onClick={toggle}
-          title='Toggle theme'
+          title='Chuyển đổi giao diện'
           style={{
             background: dark ? '#243040' : '#eaf7f7',
             border: `1px solid ${border}`,
@@ -410,7 +472,7 @@ function DashboardPage() {
             fontWeight: 700,
           }}
         >
-          {dark ? 'LIGHT' : 'DARK'}
+          {dark ? 'SÁNG' : 'TỐI'}
         </button>
       </div>
 
@@ -422,11 +484,11 @@ function DashboardPage() {
         </div>
 
         <div className='dashboard-grid-2'>
-          <Block dark={dark} title='Salary Expenditure by Dept'>
+          <Block dark={dark} title='Chi Phí Lương Theo Phòng Ban'>
             <ResponsiveContainer width='100%' height={210}>
               <PieChart>
-                <Pie data={salaryByDeptPie.length > 0 ? salaryByDeptPie : [{ name: 'No Data', value: 100, color: '#ccc' }]} cx='50%' cy='50%' innerRadius={0} outerRadius={80} dataKey='value' label={({ name, value }) => `${name}: ${value}%`} labelLine={false} fontSize={10}>
-                  {(salaryByDeptPie.length > 0 ? salaryByDeptPie : [{ name: 'No Data', value: 100, color: '#ccc' }]).map((e) => (
+                <Pie data={salaryByDeptPie.length > 0 ? salaryByDeptPie : [{ name: 'Không có dữ liệu', value: 100, color: '#ccc' }]} cx='50%' cy='50%' innerRadius={0} outerRadius={80} dataKey='value' label={({ name, value }) => `${name}: ${value}%`} labelLine={false} fontSize={10}>
+                  {(salaryByDeptPie.length > 0 ? salaryByDeptPie : [{ name: 'Không có dữ liệu', value: 100, color: '#ccc' }]).map((e) => (
                     <Cell key={e.name} fill={e.color} />
                   ))}
                 </Pie>
@@ -435,11 +497,11 @@ function DashboardPage() {
             </ResponsiveContainer>
           </Block>
 
-          <Block dark={dark} title='Headcount by Dept'>
-            <ResponsiveContainer width='100%' height={230}>
-              <BarChart data={headcountByDept.length > 0 ? headcountByDept : [{ quarter: 'Q1', name: 'Employees', count: totalEmployees }]} barSize={22}>
+          <Block dark={dark} title='Số Lượng Nhân Viên Theo Phòng Ban'>
+            <ResponsiveContainer width='100%' height={280}>
+              <BarChart data={headcountByDept.length > 0 ? headcountByDept : [{ quarter: 'Q1', name: 'Nhân viên', count: totalEmployees }]} barSize={22} margin={{ bottom: 20 }}>
                 <CartesianGrid strokeDasharray='3 3' stroke={dark ? '#243040' : '#eaf0f4'} />
-                <XAxis dataKey='name' tick={{ fontSize: 11, fill: muted }} axisLine={false} tickLine={false} />
+                <XAxis dataKey='name' tick={renderCustomXAxisTick} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: muted }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip dark={dark} />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -450,7 +512,7 @@ function DashboardPage() {
         </div>
 
         <div className='dashboard-grid-3'>
-          <Block dark={dark} title='Monthly Salary Trends'>
+          <Block dark={dark} title='Xu Hướng Lương Hàng Tháng'>
             <ResponsiveContainer width='100%' height={220}>
               <LineChart data={salaryByUnit}>
                 <CartesianGrid strokeDasharray='3 3' stroke={dark ? '#243040' : '#eaf0f4'} />
@@ -459,14 +521,14 @@ function DashboardPage() {
                 <Tooltip content={<CustomTooltip dark={dark} />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 {departments.slice(0, 5).map((dept, i) => (
-                  <Line key={dept.DepartmentID || i} type='monotone' dataKey={dept.DepartmentName || `Dept${i}`} stroke={LINE_COLORS[i % LINE_COLORS.length]} strokeWidth={2} dot={false} />
+                  <Line key={dept.DepartmentID || i} type='monotone' dataKey={dept.DepartmentName || `PB${i}`} stroke={LINE_COLORS[i % LINE_COLORS.length]} strokeWidth={2} dot={false} />
                 ))}
               </LineChart>
             </ResponsiveContainer>
           </Block>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Block dark={dark} title='Notifications & Alerts' style={{ flex: 1 }}>
+            <Block dark={dark} title='Thông Báo & Cảnh Báo' style={{ flex: 1 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {alertNotifications.length > 0 ? (
                   alertNotifications.map((n) => (
@@ -490,12 +552,12 @@ function DashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <div style={{ fontSize: 12, color: muted }}>No alerts at the moment.</div>
+                  <div style={{ fontSize: 12, color: muted }}>Hiện không có cảnh báo.</div>
                 )}
               </div>
             </Block>
 
-            <Block dark={dark} title='Employee Distribution by Position'>
+            <Block dark={dark} title='Phân Bố Nhân Viên Theo Chức Danh'>
               <ResponsiveContainer width='100%' height={130}>
                 <PieChart>
                   <Pie data={positionDist} cx='50%' cy='50%' innerRadius={38} outerRadius={58} dataKey='value' startAngle={90} endAngle={-270}>
@@ -512,10 +574,10 @@ function DashboardPage() {
 
         <Block
           dark={dark}
-          title={`Employee List ${filtered.length < enrichedEmployees.length ? `(${filtered.length} results)` : `- ${enrichedEmployees.length} total`}`}
+          title={`Danh Sách Nhân Viên ${filtered.length < enrichedEmployees.length ? `(${filtered.length} kết quả)` : `- ${enrichedEmployees.length} tổng cộng`}`}
           action={
             <button onClick={() => setEmpModal(true)} style={{ background: accent, color: '#fff', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-              View All
+              Xem Tất Cả
             </button>
           }
         >
@@ -523,7 +585,7 @@ function DashboardPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${border}` }}>
-                  {['Avatar', 'Name', 'Designation', 'Department', 'Status'].map((h) => (
+                  {['Ảnh Đại Diện', 'Tên', 'Chức Danh', 'Phòng Ban', 'Trạng Thái'].map((h) => (
                     <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: muted, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
                       {h.toUpperCase()}
                     </th>
@@ -536,10 +598,10 @@ function DashboardPage() {
                   return (
                     <tr key={e.id} style={{ borderBottom: `1px solid ${border}`, background: i % 2 === 1 ? (dark ? '#1a2838' : '#f8fbfc') : 'transparent' }}>
                       <td style={{ padding: '10px 12px' }}><Avatar name={e.name} size={30} /></td>
-                      <td style={{ padding: '10px 12px', fontWeight: 600, color: text }}>{e.name}</td>
-                      <td style={{ padding: '10px 12px', color: muted }}>{e.role}</td>
-                      <td style={{ padding: '10px 12px', color: muted }}>{e.dept}</td>
-                      <td style={{ padding: '10px 12px' }}><span style={{ background: pc.bg, color: pc.text, borderRadius: 5, padding: '3px 10px', fontSize: 11, fontWeight: 700 }}>{e.status}</span></td>
+                      <td style={{ padding: '10px 12px', fontWeight: 600, color: text, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.name}</td>
+                      <td style={{ padding: '10px 12px', color: muted, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.role}</td>
+                      <td style={{ padding: '10px 12px', color: muted, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.dept}</td>
+                      <td style={{ padding: '10px 12px' }}><span style={{ background: pc.bg, color: pc.text, borderRadius: 5, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-block' }}>{e.status}</span></td>
                     </tr>
                   );
                 })}
@@ -553,11 +615,11 @@ function DashboardPage() {
         <div className='dashboard-modal-overlay' onClick={() => setEmpModal(false)}>
           <div className='dashboard-modal-content' style={{ background: dark ? '#162030' : '#fff', borderColor: border }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-              <span style={{ fontSize: 17, fontWeight: 800, color: text }}>Full Employee List</span>
+              <span style={{ fontSize: 17, fontWeight: 800, color: text }}>Danh Sách Đầy Đủ Nhân Viên</span>
               <button onClick={() => setEmpModal(false)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: muted }}>X</button>
             </div>
             <input
-              placeholder='Search by name, role, or department...'
+              placeholder='Tìm theo tên, chức danh, hoặc phòng ban...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: '100%', background: dark ? '#1e2a35' : '#f0f6fa', border: `1px solid ${border}`, borderRadius: 8, padding: '9px 14px', fontSize: 13, color: text, marginBottom: 16, boxSizing: 'border-box' }}

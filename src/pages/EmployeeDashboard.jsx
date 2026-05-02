@@ -26,6 +26,7 @@ import {
   CircleX,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { formatVND } from '../utils/currency';
 import api from '../api/axios';
 import '../styles/employee-dashboard.css';
 
@@ -36,11 +37,11 @@ const statusMeta = {
 };
 
 const roleNav = [
-  { label: 'Dashboard', icon: LayoutDashboard, target: 'dashboard' },
-  { label: 'Profile', icon: UserRound, target: 'profile' },
-  { label: 'Attendance', icon: CalendarCheck2, target: 'attendance' },
-  { label: 'Payroll', icon: Wallet, target: 'payroll' },
-  { label: 'Requests', icon: ClipboardList, target: 'requests' },
+  { label: 'Bảng Điều Khiển', icon: LayoutDashboard, target: 'dashboard' },
+  { label: 'Hồ Sơ', icon: UserRound, target: 'profile' },
+  { label: 'Chấm Công', icon: CalendarCheck2, target: 'attendance' },
+  { label: 'Lương', icon: Wallet, target: 'payroll' },
+  { label: 'Yêu Cầu', icon: ClipboardList, target: 'requests' },
 ];
 
 function Avatar({ label }) {
@@ -91,14 +92,14 @@ export default function EmployeeDashboard({ onLogout }) {
         
         setEmployeeData({
           name: emp.FullName || user.fullname || user.username,
-          title: emp.PositionName || 'Employee',
-          department: emp.DepartmentName || `Department ${emp.DepartmentID || ''}`,
+          title: emp.PositionName || 'Nhân viên',
+          department: emp.DepartmentName || `Phòng ${emp.DepartmentID || ''}`,
           employeeId: `EMP-${emp.EmployeeID || user.id}`,
           email: emp.Email || '',
           phone: emp.Phone || '',
           address: emp.Address || '',
           profilePicture: (emp.FullName || 'U').split(' ').map(w => w[0]).join('').slice(0, 2),
-          role: user.role || 'Employee',
+          role: user.role || 'Nhân viên',
         });
 
         // Fetch attendance - DB columns: AttendanceID, EmployeeID, WorkDays, AbsentDays, LeaveDays, AttendanceMonth
@@ -133,15 +134,15 @@ export default function EmployeeDashboard({ onLogout }) {
         try {
           const user = JSON.parse(localStorage.getItem('user') || '{}');
           setEmployeeData({
-            name: user.fullname || user.username || 'Employee',
-            title: user.role || 'Employee',
-            department: 'General',
+            name: user.fullname || user.username || 'Nhân viên',
+            title: user.role || 'Nhân viên',
+            department: 'Tổng quát',
             employeeId: `EMP-${user.id || '0000'}`,
             email: '',
             phone: '',
             address: '',
             profilePicture: (user.fullname || 'EM').split(' ').map(w => w[0]).join('').slice(0, 2),
-            role: user.role || 'Employee',
+            role: user.role || 'Nhân viên',
           });
         } catch {
           // Last resort fallback
@@ -154,15 +155,15 @@ export default function EmployeeDashboard({ onLogout }) {
   }, []);
 
   const employee = employeeData || {
-    name: 'Employee',
-    title: 'Employee',
-    department: 'General',
+    name: 'Nhân viên',
+    title: 'Nhân viên',
+    department: 'Tổng quát',
     employeeId: 'EMP-0000',
     email: '',
     phone: '',
     address: '',
     profilePicture: 'EM',
-    role: 'Employee',
+    role: 'Nhân viên',
   };
 
   const currentAttendance = attendance || { workDays: 0, absentDays: 0, leaveDays: 0, month: 'N/A' };
@@ -173,26 +174,26 @@ export default function EmployeeDashboard({ onLogout }) {
   }, [payrollHistory]);
 
   const leaveBalance = [
-    { label: 'Annual leave', value: '12 days', tone: 'good' },
-    { label: 'Sick leave', value: '5 days', tone: 'warning' },
-    { label: 'Personal leave', value: '3 days', tone: 'neutral' },
+    { label: 'Nghỉ hàng năm', value: '12 ngày', tone: 'good' },
+    { label: 'Nghỉ ốm', value: '5 ngày', tone: 'warning' },
+    { label: 'Nghỉ cá nhân', value: '3 ngày', tone: 'neutral' },
   ];
 
   const announcements = [
     {
       id: 1,
-      title: 'Quarterly performance reviews',
-      text: 'Review cycles open next Monday. Please update your self-assessment before the deadline.',
+      title: 'Đánh Giá Hiệu Suất Hàng Quý',
+      text: 'Chu kỳ đánh giá mở vào thứ Hai tới. Vui lòng cập nhật đánh giá bản thân trước hạn chót.',
     },
     {
       id: 2,
-      title: 'Payroll processing reminder',
-      text: 'April payroll will be processed on 30 Apr. Submit any reimbursement changes before 4 PM.',
+      title: 'Nhắc Nhở Xử Lý Lương',
+      text: 'Lương tháng 4 sẽ được xử lý vào ngày 30/4. Hãy gửi các thay đổi hoàn lại trước 4 giờ chiều.',
     },
     {
       id: 3,
-      title: 'Office holiday notice',
-      text: 'The office will be closed on 1 May for the public holiday. Work schedules will remain flexible.',
+      title: 'Thông Báo Nghỉ Lễ',
+      text: 'Văn phòng sẽ đóng cửa vào ngày 1/5 cho kỳ nghỉ lễ. Lịch trình làm việc sẽ vẫn linh hoạt.',
     },
   ];
 
@@ -215,7 +216,7 @@ export default function EmployeeDashboard({ onLogout }) {
 
   const renderDashboard = () => (
     <div className='employee-dashboard-grid'>
-      <SectionCard id='dashboard' title='Personal Overview' subtitle='Your current HR snapshot at a glance.' className='overview-card'>
+      <SectionCard id='dashboard' title='Tổng Quan Nhân Viên' subtitle='Cái nhìn tổng quan nhân sự của bạn tại một cái nhìn.' className='overview-card'>
         <div className='overview-layout'>
           <div className='overview-profile'>
             <Avatar label={employee.profilePicture} />
@@ -226,11 +227,11 @@ export default function EmployeeDashboard({ onLogout }) {
           </div>
           <div className='overview-meta'>
             <div>
-              <span>Department</span>
+              <span>Phòng Ban</span>
               <strong>{employee.department}</strong>
             </div>
             <div>
-              <span>Employee ID</span>
+              <span>Mã Nhân Viên</span>
               <strong>{employee.employeeId}</strong>
             </div>
           </div>
@@ -238,28 +239,28 @@ export default function EmployeeDashboard({ onLogout }) {
       </SectionCard>
 
       <div className='employee-dashboard-two-up'>
-        <SectionCard id='attendance' title='Attendance Summary' subtitle='Track your workday and check in or out quickly.'>
+        <SectionCard id='attendance' title='Tổng Kết Chấm Công' subtitle='Theo dõi ngày làm việc và chấm công nhanh chóng.'>
           <div className='attendance-stats'>
             <div>
-              <span>Work Days</span>
+              <span>Ngày Làm Việc</span>
               <strong>{currentAttendance.workDays}</strong>
             </div>
             <div>
-              <span>Absent Days</span>
+              <span>Ngày Vắng</span>
               <strong>{currentAttendance.absentDays}</strong>
             </div>
             <div>
-              <span>Leave Days</span>
+              <span>Ngày Nghỉ Phép</span>
               <strong>{currentAttendance.leaveDays}</strong>
             </div>
           </div>
           <div className='action-row'>
-            <button className='action-primary' type='button'>Check In</button>
-            <button className='action-secondary' type='button'>Check Out</button>
+            <button className='action-primary' type='button'>Chấm Công Vào</button>
+            <button className='action-secondary' type='button'>Chấm Công Ra</button>
           </div>
         </SectionCard>
 
-        <SectionCard id='payroll' title='Leave Balance' subtitle='Your remaining time off for the current cycle.'>
+        <SectionCard id='payroll' title='Số Dư Nghỉ Phép' subtitle='Số ngày nghỉ phép còn lại trong kỳ hiện tại.'>
           <div className='balance-list'>
             {leaveBalance.map((item) => (
               <div key={item.label} className={`balance-item ${item.tone}`}>
@@ -268,27 +269,27 @@ export default function EmployeeDashboard({ onLogout }) {
               </div>
             ))}
           </div>
-          <button className='action-secondary action-wide' type='button'>Request Leave</button>
+          <button className='action-secondary action-wide' type='button'>Yêu Cầu Nghỉ Phép</button>
         </SectionCard>
       </div>
 
       <div className='employee-dashboard-two-up'>
-        <SectionCard id='payroll-summary' title='Payroll Summary' subtitle='Latest salary and upcoming payment details.'>
+        <SectionCard id='payroll-summary' title='Tổng Quan Lương' subtitle='Lương mới nhất và chi tiết thanh toán sắp tới.'>
           <div className='payroll-summary-card'>
             <div>
-              <span>Latest salary</span>
-              <strong>{latestPayroll ? `${Number(latestPayroll.NetSalary || 0).toLocaleString()}₫` : '0₫'}</strong>
+              <span>Lương Mới Nhất</span>
+              <strong>{latestPayroll ? formatVND(latestPayroll.NetSalary) : formatVND(0)}</strong>
             </div>
             <div>
-              <span>Pay period</span>
+              <span>Kỳ Lương</span>
               <strong>{latestPayroll?.SalaryMonth ? String(latestPayroll.SalaryMonth).slice(0, 7) : 'N/A'}</strong>
             </div>
           </div>
-          <p className='muted-copy'>Monthly payroll processed on the last business day.</p>
-          <button className='action-primary action-wide' type='button'>View Payslip</button>
+          <p className='muted-copy'>Lương tháng được xử lý vào ngày làm việc cuối cùng.</p>
+          <button className='action-primary action-wide' type='button'>Xem Phiếu Lương</button>
         </SectionCard>
 
-        <SectionCard id='announcements' title='Announcements' subtitle='Company updates and HR reminders.'>
+        <SectionCard id='announcements' title='Thông Báo' subtitle='Cập nhật công ty và nhắc nhở nhân sự.'>
           <div className='announcement-list'>
             {announcements.map((item) => (
               <article key={item.id} className='announcement-item'>
@@ -303,24 +304,24 @@ export default function EmployeeDashboard({ onLogout }) {
         </SectionCard>
       </div>
 
-      <SectionCard id='requests' title='Recent Payroll History'>
+      <SectionCard id='requests' title='Lịch Sử Lương Gần Đây'>
         <div className='request-list'>
           {payrollHistory.length > 0 ? (
             payrollHistory.slice(0, 5).map((item, i) => (
               <article key={i} className='request-item'>
                 <div>
                   <strong>Kỳ lương {item.SalaryMonth ? String(item.SalaryMonth).slice(0, 7) : '#' + (item.SalaryID || i)}</strong>
-                  <p>Net: {Number(item.NetSalary || 0).toLocaleString()}₫</p>
-                  <span>Base: {Number(item.BaseSalary || 0).toLocaleString()}₫</span>
+                  <p>Net: {formatVND(item.NetSalary)}</p>
+                  <span>Base: {formatVND(item.BaseSalary)}</span>
                 </div>
                 <div className='status-pill is-approved'>
                   <BadgeCheck size={14} />
-                  Processed
+                  Đã Duyệt
                 </div>
               </article>
             ))
           ) : (
-            <p style={{ color: '#8ca0af', padding: 12 }}>No payroll history available.</p>
+            <p style={{ color: '#8ca0af', padding: 12 }}>Không có lịch sử lương.</p>
           )}
         </div>
       </SectionCard>
@@ -332,7 +333,7 @@ export default function EmployeeDashboard({ onLogout }) {
       <div className='profile-hero employee-card'>
         <Avatar label={employee.profilePicture} />
         <div>
-          <p>Profile</p>
+          <p>Hồ Sơ</p>
           <h2>{employee.name}</h2>
           <span>{employee.title}</span>
         </div>
@@ -340,31 +341,31 @@ export default function EmployeeDashboard({ onLogout }) {
 
       <div className='profile-grid'>
         <div className='employee-card profile-readonly'>
-          <h3>Read-only details</h3>
+          <h3>Chi Tiết Chỉ Đọc</h3>
           <div className='profile-detail-list'>
-            <div><span>Employee ID</span><strong>{employee.employeeId}</strong></div>
-            <div><span>Department</span><strong>{employee.department}</strong></div>
-            <div><span>Role</span><strong>{employee.role}</strong></div>
+            <div><span>Mã Nhân Viên</span><strong>{employee.employeeId}</strong></div>
+            <div><span>Phòng Ban</span><strong>{employee.department}</strong></div>
+            <div><span>Vai Trò</span><strong>{employee.role}</strong></div>
           </div>
         </div>
 
         <form className='employee-card profile-form'>
-          <h3>Contact information</h3>
+          <h3>Thông Tin Liên Hệ</h3>
           <label>
-            <span>Email</span>
-            <input type='email' defaultValue={employee.email} placeholder='Not available' />
+            <span>Thư Điện Tử</span>
+            <input type='email' defaultValue={employee.email} placeholder='Không có sẵn' />
           </label>
           <label>
-            <span>Phone</span>
-            <input type='tel' defaultValue={employee.phone} placeholder='Not available' />
+            <span>Điện Thoại</span>
+            <input type='tel' defaultValue={employee.phone} placeholder='Không có sẵn' />
           </label>
           <label className='full-width'>
-            <span>Address</span>
-            <textarea rows='4' defaultValue={employee.address} placeholder='Not available' />
+            <span>Địa Chỉ</span>
+            <textarea rows='4' defaultValue={employee.address} placeholder='Không có sẵn' />
           </label>
           <div className='action-row'>
-            <button className='action-primary' type='button'>Save Changes</button>
-            <button className='action-secondary' type='button' onClick={() => setActiveView('dashboard')}>Back to Dashboard</button>
+            <button className='action-primary' type='button'>Lưu Thay Đổi</button>
+            <button className='action-secondary' type='button' onClick={() => setActiveView('dashboard')}>Quay Lại Bảng Điều Khiển</button>
           </div>
         </form>
       </div>
@@ -380,8 +381,8 @@ export default function EmployeeDashboard({ onLogout }) {
           </button>
           <div className='brand-mark'>HRMS</div>
           <div>
-            <strong>Northstar HR</strong>
-            <span>Employee Portal</span>
+            <strong>HRMS</strong>
+            <span>Cổng Nhân Viên</span>
           </div>
         </div>
 
@@ -410,17 +411,17 @@ export default function EmployeeDashboard({ onLogout }) {
           {avatarMenuOpen && (
             <div className='avatar-dropdown'>
               <button type='button' onClick={() => jumpTo('profile')}>
-                <UserCircle2 size={16} /> Profile
+                <UserCircle2 size={16} /> Hồ Sơ
               </button>
               <button type='button' onClick={() => jumpTo('profile')}>
-                <Settings size={16} /> Settings
+                <Settings size={16} /> Cài Đặt
               </button>
               <button type='button' onClick={toggleTheme}>
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}
-                {isDark ? 'Light' : 'Dark'} mode
+                {isDark ? 'Chế Độ Sáng' : 'Chế Độ Tối'}
               </button>
               <button type='button' onClick={onLogout}>
-                <LogOut size={16} /> Logout
+                <LogOut size={16} /> Đăng Xuất
               </button>
             </div>
           )}
@@ -438,11 +439,11 @@ export default function EmployeeDashboard({ onLogout }) {
           </div>
           <div className='sidebar-footer-card'>
             <div>
-              <span>Employee ID: </span>
+              <span>Mã Nhân Viên: </span>
               <strong>{employee.employeeId}</strong>
             </div>
             <button type='button' className='logout-link' onClick={onLogout}>
-              <LogOut size={16} /> Sign out
+              <LogOut size={16} /> Đăng Xuất
             </button>
           </div>
         </aside>

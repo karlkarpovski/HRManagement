@@ -22,11 +22,11 @@ import api from '../api/axios';
 import '../styles/system-admin-dashboard.css';
 
 const navigation = [
-  { label: 'Overview', target: 'overview' },
-  { label: 'Users', target: 'users' },
-  { label: 'Permissions', target: 'permissions' },
-  { label: 'Health', target: 'health' },
-  { label: 'Audit', target: 'audit' },
+  { label: 'Tổng Quan', target: 'overview' },
+  { label: 'Người Dùng', target: 'users' },
+  { label: 'Quyền Hạn', target: 'permissions' },
+  { label: 'Hệ Thống', target: 'health' },
+  { label: 'Kiểm Tra', target: 'audit' },
 ];
 
 export default function SystemAdminDashboard({ onLogout, embedded }) {
@@ -64,37 +64,37 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
   const alertCount = alerts.length;
 
   const permissionMatrix = [
-    { role: 'Admin', permissions: ['User management', 'Permissions', 'System settings', 'Audit logs'] },
-    { role: 'HR Manager', permissions: ['Employee CRUD', 'Department CRUD', 'Reports', 'Analytics'] },
-    { role: 'Payroll Manager', permissions: ['Payroll runs', 'Attendance review', 'Payroll history'] },
-    { role: 'Employee', permissions: ['Profile view', 'Leave requests', 'Personal payroll'] },
+    { role: 'Quản Trị Viên', permissions: ['Quản lý người dùng', 'Quyền hạn', 'Cài đặt hệ thống', 'Nhật ký kiểm tra'] },
+    { role: 'Quản Lý Nhân Sự', permissions: ['CRUD nhân viên', 'CRUD phòng ban', 'Báo cáo', 'Phân tích'] },
+    { role: 'Quản Lý Lương', permissions: ['Đợt lương', 'Xét duyệt chấm công', 'Lịch sử lương'] },
+    { role: 'Nhân Viên', permissions: ['Xem hồ sơ', 'Yêu cầu nghỉ phép', 'Lương cá nhân'] },
   ];
 
   const systemHealth = [
-    { label: 'API services', value: 'Healthy', icon: Database },
-    { label: 'Auth service', value: 'Healthy', icon: ShieldCheck },
-    { label: 'Database sync', value: 'Active', icon: HardDriveDownload },
-    { label: 'System records', value: `${employees.length} employees`, icon: FileClock },
+    { label: 'Dịch vụ API', value: 'Tốt', icon: Database },
+    { label: 'Dịch vụ xác thực', value: 'Tốt', icon: ShieldCheck },
+    { label: 'Đồng bộ CSDL', value: 'Đang hoạt động', icon: HardDriveDownload },
+    { label: 'Bản ghi hệ thống', value: `${employees.length} nhân viên`, icon: FileClock },
   ];
 
   const securitySignals = useMemo(() => {
-    return alerts.slice(0, 5).map((a) => `${a.type || 'Alert'}: ${a.message || ''}`);
+    return alerts.slice(0, 5).map((a) => `${a.type || 'Cảnh báo'}: ${a.message || ''}`);
   }, [alerts]);
 
   const overviewStats = [
-    { label: 'Managed users', value: String(activeUsers), note: 'Total employee accounts', tone: 'primary' },
-    { label: 'Departments', value: String(deptCount), note: 'Active departments', tone: 'success' },
-    { label: 'Open alerts', value: String(alertCount), note: 'System notifications', tone: 'warning' },
-    { label: 'System health', value: 'Online', note: 'All services operational', tone: 'neutral' },
+    { label: 'Người dùng được quản lý', value: String(activeUsers), note: 'Tổng số tài khoản nhân viên', tone: 'primary' },
+    { label: 'Phòng ban', value: String(deptCount), note: 'Phòng ban đang hoạt động', tone: 'success' },
+    { label: 'Cảnh báo đang mở', value: String(alertCount), note: 'Thông báo hệ thống', tone: 'warning' },
+    { label: 'Tình trạng hệ thống', value: 'Trực tuyến', note: 'Tất cả dịch vụ đang hoạt động', tone: 'neutral' },
   ];
 
   const userQueue = useMemo(() => {
     return employees.slice(0, 5).map((emp) => ({
-      name: emp.FullName || 'Unknown',
-      username: `emp_${emp.EmployeeID}`,
-      role: emp.PositionName || 'Employee',
-      status: emp.Status || 'Active',
-      action: 'Review',
+      name: emp.FullName || 'Không xác định',
+      username: `nv_${emp.EmployeeID}`,
+      role: emp.PositionName || 'Nhân viên',
+      status: emp.Status || 'Đang hoạt động',
+      action: 'Xem xét',
     }));
   }, [employees]);
 
@@ -108,27 +108,27 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
   const mainContent = (
     <>
       <section className='system-admin-hero' id='overview'>
-        <div>
-          <span className='system-admin-pill'>Administration</span>
-          <h1>Directly manage users, permissions, and system health from one console.</h1>
-          <p>This workspace is focused on access control, security oversight, and operational settings.</p>
+        <div style={{ width: '100%', wordWrap: 'break-word' }}>
+          <span className='system-admin-pill'>Quản Trị</span>
+          <h1 style={{ wordWrap: 'break-word', whiteSpace: 'normal', lineHeight: 1.3 }}>Quản lý trực tiếp người dùng, quyền hạn và tình trạng hệ thống từ một bảng điều khiển.</h1>
+          <p style={{ wordWrap: 'break-word', whiteSpace: 'normal', lineHeight: 1.6 }}>Không gian làm việc này tập trung vào kiểm soát truy cập, giám sát bảo mật và cài đặt vận hành.</p>
         </div>
         <div className='system-admin-hero-actions'>
           <button type='button' className='system-admin-primary-action'>
-            <UserRoundPlus size={16} /> Create user
+            <UserRoundPlus size={16} /> Tạo Người Dùng
           </button>
           <button type='button' className='system-admin-secondary-action'>
-            <LockKeyhole size={16} /> Review access policy
+            <LockKeyhole size={16} /> Xem Xét Chính Sách Truy Cập
           </button>
         </div>
       </section>
 
-      <section className='system-admin-kpi-grid' aria-label='System admin summary metrics'>
+      <section className='system-admin-kpi-grid' aria-label='Chỉ số tổng kết quản trị hệ thống'>
         {overviewStats.map((stat) => (
-          <article key={stat.label} className={`system-admin-kpi-card ${stat.tone}`}>
-            <span>{stat.label}</span>
-            <strong>{stat.value}</strong>
-            <p>{stat.note}</p>
+          <article key={stat.label} className={`system-admin-kpi-card ${stat.tone}`} style={{ minWidth: 0, overflow: 'hidden' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{stat.label}</span>
+            <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{stat.value}</strong>
+            <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', margin: 0 }}>{stat.note}</p>
           </article>
         ))}
       </section>
@@ -137,40 +137,40 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
         <article className='system-admin-panel' id='users'>
           <div className='system-admin-panel-header'>
             <div>
-              <span className='system-admin-panel-kicker'>Users</span>
-              <h2>User management</h2>
+              <span className='system-admin-panel-kicker'>Người Dùng</span>
+              <h2>Quản lý người dùng</h2>
             </div>
           </div>
           <div className='system-admin-user-list'>
             {userQueue.map((user) => (
               <div key={user.username} className='system-admin-user-card'>
                 <div className='system-admin-user-avatar'><UserCog size={16} /></div>
-                <div className='system-admin-user-copy'>
-                  <strong>{user.name}</strong>
-                  <span>{user.username}</span>
-                  <p>{user.role} · {user.status}</p>
+                <div className='system-admin-user-copy' style={{ minWidth: 0, overflow: 'hidden' }}>
+                  <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{user.name}</strong>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{user.username}</span>
+                  <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{user.role} · {user.status}</p>
                 </div>
-                <button type='button' className='system-admin-inline-action'>{user.action}</button>
+                <button type='button' className='system-admin-inline-action' style={{ flexShrink: 0 }}>{user.action}</button>
               </div>
             ))}
-            {userQueue.length === 0 && <p style={{ padding: 16, color: '#8ba3b8' }}>No users found</p>}
+            {userQueue.length === 0 && <p style={{ padding: 16, color: '#8ba3b8' }}>Không tìm thấy người dùng</p>}
           </div>
         </article>
 
         <article className='system-admin-panel' id='permissions'>
           <div className='system-admin-panel-header'>
             <div>
-              <span className='system-admin-panel-kicker'>Permissions</span>
-              <h2>Role permission matrix</h2>
+              <span className='system-admin-panel-kicker'>Quyền Hạn</span>
+              <h2>Ma trận quyền hạn theo vai trò</h2>
             </div>
           </div>
           <div className='system-admin-permission-list'>
             {permissionMatrix.map((item) => (
               <div key={item.role} className='system-admin-permission-card'>
-                <strong>{item.role}</strong>
-                <div className='system-admin-chip-row'>
+                <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: 150 }}>{item.role}</strong>
+                <div className='system-admin-chip-row' style={{ overflow: 'hidden', flexWrap: 'wrap' }}>
                   {item.permissions.map((permission) => (
-                    <span key={permission} className='system-admin-chip'>{permission}</span>
+                    <span key={permission} className='system-admin-chip' style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180, display: 'inline-block' }}>{permission}</span>
                   ))}
                 </div>
               </div>
@@ -183,8 +183,8 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
         <article className='system-admin-panel' id='health'>
           <div className='system-admin-panel-header'>
             <div>
-              <span className='system-admin-panel-kicker'>System health</span>
-              <h2>Service status</h2>
+              <span className='system-admin-panel-kicker'>Hệ Thống</span>
+              <h2>Trạng thái dịch vụ</h2>
             </div>
           </div>
           <div className='system-admin-health-grid'>
@@ -193,9 +193,9 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
               return (
                 <div key={item.label} className='system-admin-health-card'>
                   <Icon size={16} />
-                  <div>
-                    <span>{item.label}</span>
-                    <strong>{item.value}</strong>
+                  <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{item.label}</span>
+                    <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{item.value}</strong>
                   </div>
                 </div>
               );
@@ -206,30 +206,30 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
         <article className='system-admin-panel' id='audit'>
           <div className='system-admin-panel-header'>
             <div>
-              <span className='system-admin-panel-kicker'>Security</span>
-              <h2>Audit and alerts</h2>
+              <span className='system-admin-panel-kicker'>Bảo Mật</span>
+              <h2>Kiểm tra và cảnh báo</h2>
             </div>
           </div>
           <div className='system-admin-alert-stack'>
             {securitySignals.length > 0 ? (
               securitySignals.map((signal, i) => (
                 <div key={i} className='system-admin-alert-item'>
-                  <CircleAlert size={16} />
-                  <span>{signal}</span>
+                  <CircleAlert size={16} style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: '100%' }}>{signal}</span>
                 </div>
               ))
             ) : (
-              <p style={{ padding: 16, color: '#8ba3b8' }}>No active alerts</p>
+              <p style={{ padding: 16, color: '#8ba3b8' }}>Không có cảnh báo đang hoạt động</p>
             )}
           </div>
           <div className='system-admin-metrics-row'>
             <div>
               <Activity size={16} />
-              <span>System monitoring active</span>
+              <span>Giám sát hệ thống đang hoạt động</span>
             </div>
             <div>
               <BellRing size={16} />
-              <span>{alertCount} alert channels</span>
+              <span>{alertCount} kênh cảnh báo</span>
             </div>
           </div>
         </article>
@@ -254,10 +254,10 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
       <aside className={`system-admin-rail ${menuOpen ? 'open' : ''}`}>
         <div className='system-admin-rail-top'>
           <div className='system-admin-brand'>
-            <span className='system-admin-brand-mark'>A</span>
+            <span className='system-admin-brand-mark'>Q</span>
             <div>
-              <strong>System Admin</strong>
-              <span>Full control console</span>
+              <strong>Quản Trị Hệ Thống</strong>
+              <span>Bảng điều khiển toàn quyền</span>
             </div>
           </div>
           <button type='button' className='system-admin-menu-toggle' onClick={() => setMenuOpen((current) => !current)}>
@@ -274,16 +274,16 @@ export default function SystemAdminDashboard({ onLogout, embedded }) {
         </nav>
         <div className='system-admin-rail-footer'>
           <div>
-            <span>Role</span>
-            <strong>System Admin</strong>
+            <span>Vai trò</span>
+            <strong>Quản Trị Viên</strong>
           </div>
-          <button type='button' className='system-admin-theme-toggle' onClick={toggleTheme} title={isDark ? 'Light mode' : 'Dark mode'}>
+          <button type='button' className='system-admin-theme-toggle' onClick={toggleTheme}>
             {isDark ? <Sun size={16} /> : <Moon size={16} />}
-            {isDark ? 'Light' : 'Dark'}
+            {isDark ? 'Sáng' : 'Tối'}
           </button>
           {onLogout && (
             <button type='button' className='system-admin-logout' onClick={onLogout}>
-              <LogOut size={16} /> Sign out
+              <LogOut size={16} /> Đăng Xuất
             </button>
           )}
         </div>

@@ -8,7 +8,7 @@ const Table = ({ columns, data, onRowClick }) => {
         <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column.key}>{column.label}</th>
+              <th key={column.key} style={{ maxWidth: column.maxWidth || 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{column.label}</th>
             ))}
           </tr>
         </thead>
@@ -23,7 +23,7 @@ const Table = ({ columns, data, onRowClick }) => {
             data.map((row, rowIndex) => (
               <tr key={row.id || rowIndex} className='table-row' onClick={() => onRowClick && onRowClick(row)}>
                 {columns.map((column) => (
-                  <td key={column.key}>{row[column.key]}</td>
+                  <td key={column.key} style={{ maxWidth: column.maxWidth || 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', title: String(row[column.key] || '') }}>{row[column.key]}</td>
                 ))}
               </tr>
             ))

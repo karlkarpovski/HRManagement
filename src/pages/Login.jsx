@@ -7,26 +7,26 @@ import '../styles/login.css';
 const AUTH_RULES = {
   'HR Manager': {
     label: 'HR Manager',
-    username: 'manager',
-    password: 'test',
+    username: 'hr_An',
+    password: '123456',
     description: 'Quản lý nhân viên, phòng ban, chức vụ và đồng bộ dữ liệu.',
   },
   'Payroll Manager': {
     label: 'Payroll Manager',
-    username: 'pay01',
-    password: 'paypass',
+    username: 'pay_binh',
+    password: '123456',
     description: 'Quản lý bảng lương, chuyên cần và lịch sử lương.',
   },
   Employee: {
     label: 'Employee',
     username: 'employee',
-    password: 'test',
+    password: '123456',
     description: 'Chỉ xem được hồ sơ cá nhân và phiếu lương của chính mình.',
   },
   Admin: {
     label: 'Admin',
-    username: 'admin',
-    password: 'test',
+    username: 'admin_hieu',
+    password: '123456',
     description: 'Toàn quyền hệ thống, quản lý người dùng và xem Audit Logs.',
   },
 };

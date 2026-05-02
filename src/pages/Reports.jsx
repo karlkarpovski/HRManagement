@@ -41,13 +41,15 @@ const Reports = () => {
   }, [reportType]);
 
   const handleExport = (format) => {
-    const reportName = reportType.charAt(0).toUpperCase() + reportType.slice(1);
-    alert(`📄 Export ${reportName} Report as ${format}`);
+    const reportName = reportType === 'hr' ? 'Nhân Sự' : 
+                      reportType === 'payroll' ? 'Lương' :
+                      reportType === 'attendance' ? 'Chấm Công' : 'Cổ Tức';
+    alert(`📄 Xuất Báo Cáo ${reportName} dưới định dạng ${format}`);
   };
 
   const renderTable = (columns, data) => {
     if (!data || data.length === 0) {
-      return <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>No data available</p>;
+      return <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>Không có dữ liệu</p>;
     }
     return (
       <div className="summary-table">
@@ -55,7 +57,7 @@ const Reports = () => {
           <thead>
             <tr>
               {columns.map((col) => (
-                <th key={col.key}>{col.label}</th>
+                <th key={col.key} style={{ maxWidth: col.maxWidth || 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{col.label}</th>
               ))}
             </tr>
           </thead>
@@ -63,7 +65,7 @@ const Reports = () => {
             {data.map((row, i) => (
               <tr key={i}>
                 {columns.map((col) => (
-                  <td key={col.key}>{row[col.key] !== undefined ? String(row[col.key]) : 'N/A'}</td>
+                  <td key={col.key} style={{ maxWidth: col.maxWidth || 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', title: String(row[col.key] !== undefined ? row[col.key] : 'N/A') }}>{row[col.key] !== undefined ? String(row[col.key]) : 'N/A'}</td>
                 ))}
               </tr>
             ))}
@@ -76,42 +78,42 @@ const Reports = () => {
   return (
     <div className="page-container">
       <Header
-        title="Reports & Analytics"
-        subtitle="View and export comprehensive reports from the system"
+        title="Báo Cáo & Phân Tích"
+        subtitle="Xem và xuất các báo cáo toàn diện từ hệ thống"
       />
 
-      <Card title="Report Settings">
+      <Card title="Cài Đặt Báo Cáo">
         <div className="report-controls">
           <div className="form-group">
-            <label>Report Type</label>
+            <label>Loại Báo Cáo</label>
             <select
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
               className="form-control"
             >
-              <option value="hr">HR Report (Employees by Dept)</option>
-              <option value="payroll">Payroll Report (Earnings by Employee)</option>
-              <option value="attendance">Attendance Report</option>
-              <option value="dividends">Dividend History</option>
+              <option value="hr">Báo Cáo Nhân Sự (Nhân viên theo phòng ban)</option>
+              <option value="payroll">Báo Cáo Lương (Thu nhập theo nhân viên)</option>
+              <option value="attendance">Báo Cáo Chấm Công</option>
+              <option value="dividends">Lịch Sử Cổ Tức</option>
             </select>
           </div>
 
           <div className="form-actions">
-            <Button label="📄 Export PDF" onClick={() => handleExport('PDF')} variant="primary" />
-            <Button label="📊 Export Excel" onClick={() => handleExport('Excel')} variant="primary" />
-            <Button label="🔄 Refresh" onClick={() => fetchData(reportType)} variant="secondary" />
+            <Button label="📄 Xuất PDF" onClick={() => handleExport('PDF')} variant="primary" />
+            <Button label="📊 Xuất Excel" onClick={() => handleExport('Excel')} variant="primary" />
+            <Button label="🔄 Làm Mới" onClick={() => fetchData(reportType)} variant="secondary" />
           </div>
         </div>
       </Card>
 
-      {loading && <Card title="Loading..."><p style={{ color: '#8ca0af' }}>Đang tải dữ liệu...</p></Card>}
+      {loading && <Card title="Đang tải..."><p style={{ color: '#8ca0af' }}>Đang tải dữ liệu...</p></Card>}
 
       {!loading && reportType === 'hr' && (
-        <Card title={`HR Report - Employees by Department (${hrReport.length})`}>
+        <Card title={`Báo Cáo Nhân Sự - Nhân Viên Theo Phòng Ban (${hrReport.length})`}>
           {renderTable(
             [
-              { key: 'DepartmentName', label: 'Department' },
-              { key: 'TotalEmployees', label: 'Total Employees' },
+              { key: 'DepartmentName', label: 'Phòng Ban' },
+              { key: 'TotalEmployees', label: 'Tổng Số Nhân Viên' },
             ],
             hrReport
           )}
@@ -119,13 +121,13 @@ const Reports = () => {
       )}
 
       {!loading && reportType === 'payroll' && (
-        <Card title={`Payroll Report - Total Earnings by Employee (${payrollReport.length})`}>
+        <Card title={`Báo Cáo Lương - Tổng Thu Nhập Theo Nhân Viên (${payrollReport.length})`}>
           {renderTable(
             [
-              { key: 'EmployeeID', label: 'Employee ID' },
-              { key: 'FullName', label: 'Full Name' },
-              { key: 'DepartmentName', label: 'Department' },
-              { key: 'TotalEarnings', label: 'Total Earnings (₫)' },
+              { key: 'EmployeeID', label: 'Mã Nhân Viên' },
+              { key: 'FullName', label: 'Họ Tên' },
+              { key: 'DepartmentName', label: 'Phòng Ban' },
+              { key: 'TotalEarnings', label: 'Tổng Thu Nhập (₫)' },
             ],
             payrollReport.map((r) => ({
               ...r,
@@ -135,9 +137,9 @@ const Reports = () => {
 
           {payrollReport.length > 0 && (
             <div style={{ marginTop: 16, padding: '12px 16px', background: '#f0f8fa', borderRadius: 8 }}>
-              <strong>Total Payroll: </strong>
+              <strong>Tổng Quỹ Lương: </strong>
               <span style={{ fontSize: 18, fontWeight: 800, color: '#1a2a38' }}>
-                {(payrollReport.reduce((s, r) => s + (Number(r.TotalEarnings) || 0), 0)).toLocaleString('vi-VN')}₫
+                {payrollReport.reduce((s, r) => s + (Number(r.TotalEarnings) || 0), 0).toLocaleString('vi-VN')}₫
               </span>
             </div>
           )}
@@ -145,27 +147,27 @@ const Reports = () => {
       )}
 
       {!loading && reportType === 'attendance' && (
-        <Card title={`Attendance Report (${attendance.length} records)`}>
+        <Card title={`Báo Cáo Chấm Công (${attendance.length} bản ghi)`}>
           {attendance.length > 0 ? (
             renderTable(
               Object.keys(attendance[0] || {}).map((k) => ({ key: k, label: k })),
               attendance
             )
           ) : (
-            <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>No attendance records found.</p>
+            <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>Không tìm thấy bản ghi chấm công.</p>
           )}
         </Card>
       )}
 
       {!loading && reportType === 'dividends' && (
-        <Card title={`Dividend History (${dividendReport.length} records)`}>
+        <Card title={`Lịch Sử Cổ Tức (${dividendReport.length} bản ghi)`}>
           {dividendReport.length > 0 ? (
             renderTable(
               Object.keys(dividendReport[0] || {}).map((k) => ({ key: k, label: k })),
               dividendReport
             )
           ) : (
-            <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>No dividend records found.</p>
+            <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>Không tìm thấy bản ghi cổ tức.</p>
           )}
         </Card>
       )}

@@ -63,9 +63,17 @@ const Departments = () => {
     }
   };
 
-  const handleDeleteDepartment = (dept) => {
-    // Soft delete: departments don't have delete endpoint, but we can warn
-    alert('Phòng ban không thể xóa qua API. Vui lòng xóa ở Database hoặc vô hiệu hóa.');
+  const handleDeleteDepartment = async (dept) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa phòng ban "${dept.DepartmentName}" không?`)) {
+      return;
+    }
+    try {
+      await api.delete(`/departments/${dept.DepartmentID}`);
+      alert('Xóa phòng ban thành công!');
+      fetchAll();
+    } catch (err) {
+      alert('Lỗi khi xóa phòng ban: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   // Count employees per department using DepartmentID
@@ -84,25 +92,25 @@ const Departments = () => {
   return (
     <div className="page-container">
       <Header
-        title="Department Management"
-        subtitle="Manage departments and assign employees"
+        title="Quản Lý Phòng Ban"
+        subtitle="Quản lý các phòng ban và phân công nhân viên"
         actions={
-          <Button label="➕ Add Department" onClick={handleAddDepartment} variant="primary" />
+          <Button label="➕ Thêm Phòng Ban" onClick={handleAddDepartment} variant="primary" />
         }
       />
 
-      <Card title="Department Summary">
+      <Card title="Tổng Quan Phòng Ban">
         <div className="summary-grid">
           <div className="summary-item">
-            <span className="summary-label">Total Departments</span>
+            <span className="summary-label">Tổng Số Phòng Ban</span>
             <span className="summary-value">{totalDepts}</span>
           </div>
           <div className="summary-item">
-            <span className="summary-label">Total Employees</span>
+            <span className="summary-label">Tổng Số Nhân Viên</span>
             <span className="summary-value">{totalEmployees}</span>
           </div>
           <div className="summary-item">
-            <span className="summary-label">Avg. Department Size</span>
+            <span className="summary-label">Kích Thước TB</span>
             <span className="summary-value">
               {totalDepts > 0 ? Math.round(totalEmployees / totalDepts) : 0}
             </span>
@@ -117,29 +125,29 @@ const Departments = () => {
           return (
             <Card key={dept.DepartmentID} className="department-card">
               <div className="dept-header">
-                <h2>{dept.DepartmentName}</h2>
-                <button className="edit-btn" onClick={() => handleEditDepartment(dept)} title="Edit">✏️</button>
+                <h2 style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%', title: dept.DepartmentName }}>{dept.DepartmentName}</h2>
+                <button className="edit-btn" onClick={() => handleEditDepartment(dept)} title="Chỉnh Sửa">✏️</button>
               </div>
               <div className="dept-info">
                 <p><strong>ID:</strong> {dept.DepartmentID}</p>
-                <p><strong>Employees:</strong> {empCount}</p>
+                <p><strong>Số Nhân Viên:</strong> {empCount}</p>
               </div>
               <div className="dept-employees">
-                <strong>Staff:</strong>
+                <strong>Nhân Viên:</strong>
                 <ul>
                   {deptEmployees.map((emp) => (
-                    <li key={emp.EmployeeID} className="dept-employee-item">
+                    <li key={emp.EmployeeID} className="dept-employee-item" style={{ overflow: 'hidden' }}>
                       <div>
-                        <span className="dept-employee-name">{emp.FullName}</span>
-                        <span className="dept-employee-meta">{emp.PositionName || `ID: ${emp.PositionID}`}</span>
+                        <span className="dept-employee-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: '100%', title: emp.FullName }}>{emp.FullName}</span>
+                        <span className="dept-employee-meta" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: '100%' }}>{emp.PositionName || `ID: ${emp.PositionID}`}</span>
                       </div>
                     </li>
                   ))}
-                  {deptEmployees.length === 0 && <li>No employees</li>}
+                  {deptEmployees.length === 0 && <li>Không có nhân viên</li>}
                 </ul>
               </div>
               <Button
-                label="Edit Department"
+                label="Chỉnh Sửa Phòng Ban"
                 onClick={() => handleEditDepartment(dept)}
                 variant="secondary"
               />
@@ -151,23 +159,23 @@ const Departments = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedDept ? 'Edit Department' : 'Add New Department'}
+        title={selectedDept ? 'Chỉnh Sửa Phòng Ban' : 'Thêm Phòng Ban Mới'}
       >
         <div className="form-container">
           <div className="form-group">
-            <label>Department Name</label>
+            <label>Tên Phòng Ban</label>
             <input
               type="text"
               value={formData.DepartmentName}
               onChange={(e) => setFormData({ ...formData, DepartmentName: e.target.value })}
-              placeholder="Department name"
+              placeholder="Nhập tên phòng ban"
             />
           </div>
           <div className="form-actions">
-            <Button label="Save" onClick={handleSaveDepartment} variant="primary" />
-            <Button label="Cancel" onClick={() => setIsModalOpen(false)} variant="secondary" />
+            <Button label="Lưu" onClick={handleSaveDepartment} variant="primary" />
+            <Button label="Hủy" onClick={() => setIsModalOpen(false)} variant="secondary" />
             {selectedDept && (
-              <Button label="Delete" onClick={() => handleDeleteDepartment(selectedDept)} variant="danger" />
+              <Button label="Xóa" onClick={() => handleDeleteDepartment(selectedDept)} variant="danger" />
             )}
           </div>
         </div>

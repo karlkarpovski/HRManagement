@@ -21,12 +21,12 @@ const formatDate = (dateStr) => {
 const getBirthdayStatus = (dobStr) => {
   const dob = parseDate(dobStr);
   if (!dob) return { label: 'N/A', message: 'Chưa có dữ liệu', isToday: false, daysUntil: 999 };
-
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const nextBDay = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
   if (nextBDay < today) nextBDay.setFullYear(today.getFullYear() + 1);
-
+  
   const diff = Math.ceil((nextBDay - today) / (1000 * 60 * 60 * 24));
   return {
     label: diff === 0 ? 'Hôm nay 🎂' : `Còn ${diff} ngày`,
@@ -43,16 +43,16 @@ const Employees = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
-
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
-
+  
   const [formData, setFormData] = useState({
     FullName: '', DepartmentID: '', PositionID: '', DateOfBirth: '', salary: '', Status: 'Active',
   });
-
+  
   // Fetch all reference data + employees
   const fetchAll = async () => {
     try {
@@ -71,9 +71,9 @@ const Employees = () => {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => { fetchAll(); }, []);
-
+  
   const handleSaveEmployee = async () => {
     try {
       if (editingEmployee) {
@@ -87,7 +87,7 @@ const Employees = () => {
       alert('Lỗi khi lưu thông tin!');
     }
   };
-
+  
   const handleDeleteEmployee = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa?')) {
       try {
@@ -98,13 +98,13 @@ const Employees = () => {
       }
     }
   };
-
+  
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setFormData({ FullName: '', DepartmentID: '', PositionID: '', DateOfBirth: '', salary: '', Status: 'Active' });
     setIsModalOpen(true);
   };
-
+  
   const handleEditEmployee = (emp) => {
     setEditingEmployee(emp);
     setFormData({
@@ -117,7 +117,7 @@ const Employees = () => {
     });
     setIsModalOpen(true);
   };
-
+  
   const handleViewProfile = (emp) => {
     const bday = getBirthdayStatus(emp.DateOfBirth);
     setSelectedProfile({
@@ -134,20 +134,20 @@ const Employees = () => {
     });
     setIsProfileOpen(true);
   };
-
+  
   // Lookup maps for display names
   const deptMap = useMemo(() => {
     const m = {};
     departments.forEach((d) => { m[d.DepartmentID] = d.DepartmentName; });
     return m;
   }, [departments]);
-
+  
   const posMap = useMemo(() => {
     const m = {};
     positions.forEach((p) => { m[p.PositionID] = p.PositionName; });
     return m;
   }, [positions]);
-
+  
   const processedEmployees = useMemo(() => {
     return employees.map((emp) => {
       const bday = getBirthdayStatus(emp.DateOfBirth);
@@ -164,11 +164,11 @@ const Employees = () => {
       };
     });
   }, [employees, deptMap, posMap]);
-
+  
   const departmentOptions = useMemo(() => {
     return departments.map((d) => d.DepartmentID);
   }, [departments]);
-
+  
   const filteredEmployees = useMemo(() => {
     return processedEmployees.filter((emp) => {
       const matchesSearch = (emp.FullName || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -176,53 +176,53 @@ const Employees = () => {
       return matchesSearch && matchesDept;
     });
   }, [processedEmployees, searchTerm, departmentFilter]);
-
+  
   const birthdayNotifications = useMemo(
     () => processedEmployees.filter((emp) => emp.daysUntil <= 7),
     [processedEmployees]
   );
-
+  
   const columns = [
-    { key: 'EmployeeID', label: 'ID' },
-    { key: 'FullName', label: 'Họ và Tên' },
-    { key: 'Email', label: 'Email' },
-    { key: 'DepartmentName', label: 'Phòng ban' },
-    { key: 'PositionName', label: 'Chức vụ' },
-    { key: 'dobLabel', label: 'Ngày sinh' },
-    { key: 'Status', label: 'Trạng thái' },
+    { key: 'EmployeeID', label: 'Mã NV', maxWidth: 80 },
+    { key: 'FullName', label: 'Họ và Tên', maxWidth: 200 },
+    { key: 'Email', label: 'Email', maxWidth: 220 },
+    { key: 'DepartmentName', label: 'Phòng Ban', maxWidth: 180 },
+    { key: 'PositionName', label: 'Chức Vụ', maxWidth: 180 },
+    { key: 'dobLabel', label: 'Ngày Sinh', maxWidth: 120 },
+    { key: 'Status', label: 'Trạng Thái', maxWidth: 120 },
   ];
-
+  
   return (
     <div className="page-container">
       <Header
-        title="Employee Management"
-        subtitle="Manage all employees in the system"
+        title="Quản Lý Nhân Viên"
+        subtitle="Quản lý tất cả nhân viên trong hệ thống"
         actions={
-          <Button label="➕ Add Employee" onClick={handleAddEmployee} variant="primary" />
+          <Button label="➕ Thêm Nhân Viên" onClick={handleAddEmployee} variant="primary" />
         }
       />
-
-      <Card title="Filters">
+      
+      <Card title="Bộ Lọc">
         <div className="filters-row">
           <div className="filter-group">
-            <label>Search</label>
+            <label>Tìm Kiếm</label>
             <input
               type="text"
-              placeholder="Search by name..."
+              placeholder="Tìm theo tên..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="filter-input"
             />
           </div>
-
+          
           <div className="filter-group">
-            <label>Department</label>
+            <label>Phòng Ban</label>
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
               className="filter-select"
             >
-              <option value="">All Departments</option>
+              <option value="">Tất Cả Phòng Ban</option>
               {departments.map((d) => (
                 <option key={d.DepartmentID} value={d.DepartmentID}>
                   {d.DepartmentName}
@@ -230,18 +230,18 @@ const Employees = () => {
               ))}
             </select>
           </div>
-
+          
           <div className="filter-group">
             <Button
-              label="Reset"
+              label="Đặt Lại"
               onClick={() => { setSearchTerm(''); setDepartmentFilter(''); }}
               variant="secondary"
             />
           </div>
         </div>
       </Card>
-
-      <Card title={`Birthday Notifications (${birthdayNotifications.length})`}>
+      
+      <Card title={`Thông Báo Sinh Nhật (${birthdayNotifications.length})`}>
         <div className="birthday-notifications">
           {birthdayNotifications.length > 0 ? (
             birthdayNotifications.map((employee) => (
@@ -252,24 +252,24 @@ const Employees = () => {
               </div>
             ))
           ) : (
-            <p>No birthdays today or in the next week.</p>
+            <p>Không có sinh nhật nào trong tuần này.</p>
           )}
         </div>
       </Card>
-
-      <Card title={`Employees (${filteredEmployees.length})`}>
+      
+      <Card title={`Nhân Viên (${filteredEmployees.length})`}>
         <Table
           columns={columns}
           data={filteredEmployees}
           onRowClick={(employee) => handleViewProfile(employee)}
         />
       </Card>
-
+      
       {/* Profile Modal */}
       <Modal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
-        title={selectedProfile ? `${selectedProfile.name} Profile` : 'Employee Profile'}
+        title={selectedProfile ? `${selectedProfile.name} - Hồ Sơ` : 'Hồ Sơ Nhân Viên'}
       >
         {selectedProfile && (
           <div className="profile-container">
@@ -279,31 +279,31 @@ const Employees = () => {
                 <span>{selectedProfile.id}</span>
               </div>
               <div className="profile-item">
-                <label>Name: </label>
+                <label>Tên: </label>
                 <span>{selectedProfile.name}</span>
               </div>
               <div className="profile-item">
-                <label>Department: </label>
+                <label>Phòng Ban: </label>
                 <span>{deptMap[selectedProfile.departmentId] || selectedProfile.departmentId}</span>
               </div>
               <div className="profile-item">
-                <label>Position: </label>
+                <label>Chức Vụ: </label>
                 <span>{posMap[selectedProfile.positionId] || selectedProfile.positionId}</span>
               </div>
               <div className="profile-item">
-                <label>Date of Birth: </label>
+                <label>Ngày Sinh: </label>
                 <span>{selectedProfile.dobLabel}</span>
               </div>
               <div className="profile-item">
-                <label>Birthday Status: </label>
+                <label>Trạng Thái Sinh Nhật: </label>
                 <span>{selectedProfile.birthdayLabel}</span>
               </div>
               <div className="profile-item">
-                <label>Salary ($): </label>
+                <label>Lương (₫): </label>
                 <span>{selectedProfile.salary}</span>
               </div>
               <div className="profile-item">
-                <label>Status: </label>
+                <label>Trạng Thái: </label>
                 <span>{selectedProfile.status}</span>
               </div>
               <div className="profile-item">
@@ -312,12 +312,12 @@ const Employees = () => {
               </div>
             </div>
             <div className="profile-message">
-              <label>Birthday message: </label>
+              <label>Thông Báo Sinh Nhật: </label>
               <p>{selectedProfile.birthdayMessage}</p>
             </div>
             <div className="form-actions">
               <Button
-                label="Edit Employee"
+                label="Chỉnh Sửa Nhân Viên"
                 onClick={() => {
                   // Find full employee object and edit
                   const fullEmp = employees.find(e => e.EmployeeID === selectedProfile.id);
@@ -326,36 +326,36 @@ const Employees = () => {
                 }}
                 variant="primary"
               />
-              <Button label="Close" onClick={() => setIsProfileOpen(false)} variant="secondary" />
+              <Button label="Đóng" onClick={() => setIsProfileOpen(false)} variant="secondary" />
             </div>
           </div>
         )}
       </Modal>
-
+      
       {/* Add/Edit Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingEmployee ? 'Edit Employee' : 'Add New Employee'}
+        title={editingEmployee ? 'Chỉnh Sửa Nhân Viên' : 'Thêm Nhân Viên Mới'}
       >
         <div className="form-container">
           <div className="form-group">
-            <label>Name</label>
+            <label>Tên Nhân Viên</label>
             <input
               type="text"
               value={formData.FullName}
               onChange={(e) => setFormData({ ...formData, FullName: e.target.value })}
-              placeholder="Employee name"
+              placeholder="Nhập tên nhân viên"
             />
           </div>
-
+          
           <div className="form-group">
-            <label>Department</label>
+            <label>Phòng Ban</label>
             <select
               value={formData.DepartmentID}
               onChange={(e) => setFormData({ ...formData, DepartmentID: e.target.value })}
             >
-              <option value="">Select Department</option>
+              <option value="">Chọn Phòng Ban</option>
               {departments.map((d) => (
                 <option key={d.DepartmentID} value={d.DepartmentID}>
                   {d.DepartmentName}
@@ -363,14 +363,14 @@ const Employees = () => {
               ))}
             </select>
           </div>
-
+          
           <div className="form-group">
-            <label>Position</label>
+            <label>Chức Vụ</label>
             <select
               value={formData.PositionID}
               onChange={(e) => setFormData({ ...formData, PositionID: e.target.value })}
             >
-              <option value="">Select Position</option>
+              <option value="">Chọn Chức Vụ</option>
               {positions.map((p) => (
                 <option key={p.PositionID} value={p.PositionID}>
                   {p.PositionName}
@@ -378,40 +378,36 @@ const Employees = () => {
               ))}
             </select>
           </div>
-
+          
           <div className="form-group">
-            <label>Date of Birth</label>
+            <label>Ngày Sinh</label>
             <input
               type="date"
               value={formData.DateOfBirth}
               onChange={(e) => setFormData({ ...formData, DateOfBirth: e.target.value })}
             />
           </div>
-
+          
           <div className="form-group">
-            <label>Status</label>
+            <label>Trạng Thái</label>
             <select
               value={formData.Status}
               onChange={(e) => setFormData({ ...formData, Status: e.target.value })}
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="On Leave">On Leave</option>
+              <option value="Active">Đang Hoạt Động</option>
+              <option value="Inactive">Ngừng Hoạt Động</option>
+              <option value="On Leave">Đang Nghỉ Phép</option>
             </select>
           </div>
-
+          
           <div className="form-actions">
-            <Button label="Save" onClick={handleSaveEmployee} variant="primary" />
-            <Button label="Cancel" onClick={() => setIsModalOpen(false)} variant="secondary" />
+            <Button label="Lưu" onClick={handleSaveEmployee} variant="primary" />
+            <Button label="Hủy" onClick={() => setIsModalOpen(false)} variant="secondary" />
             {editingEmployee && (
-              <Button
-                label="Delete"
-                onClick={() => {
-                  handleDeleteEmployee(editingEmployee.EmployeeID);
-                  setIsModalOpen(false);
-                }}
-                variant="danger"
-              />
+              <Button label="Xóa" onClick={() => {
+                handleDeleteEmployee(editingEmployee.EmployeeID);
+                setIsModalOpen(false);
+              }} variant="danger" />
             )}
           </div>
         </div>
