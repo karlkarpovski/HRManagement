@@ -7,7 +7,13 @@ from datetime import date
 def get_employee_by_id(emp_id):
     try:
         with engine_human.connect() as conn:
-            query = text("SELECT * FROM Employees WHERE EmployeeID = :id")
+            query = text("""
+                SELECT e.*, d.DepartmentName, p.PositionName
+                FROM Employees e
+                LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID
+                LEFT JOIN Positions p ON e.PositionID = p.PositionID
+                WHERE e.EmployeeID = :id
+            """)
             result = conn.execute(query, {"id": emp_id}).mappings().first()
 
             if result:
@@ -21,7 +27,12 @@ def get_employee_by_id(emp_id):
 def get_all_employees():
     try:
         with engine_human.connect() as conn:
-            query = text("SELECT * FROM Employees")
+            query = text("""
+                SELECT e.*, d.DepartmentName, p.PositionName
+                FROM Employees e
+                LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID
+                LEFT JOIN Positions p ON e.PositionID = p.PositionID
+            """)
             data = conn.execute(query).mappings().all()
         return jsonify([dict(row) for row in data]) 
     except Exception as e:
@@ -37,6 +48,20 @@ def add_employee():
     trans_p = p_conn.begin()
 
     try:
+        # Support both old format (first_name/last_name) and new format (FullName)
+        if 'FullName' in data:
+            full_name = data['FullName']
+            email = data.get('Email', '')
+            dept_id = data.get('DepartmentID')
+            pos_id = data.get('PositionID')
+            dob_val = data.get('DateOfBirth')
+        else:
+            full_name = f"{data['first_name']} {data['last_name']}"
+            email = data["email"]
+            dept_id = data["dept_id"]
+            pos_id = data["pos_id"]
+            dob_val = data["dob"]
+
         res = h_conn.execute(text("""
             INSERT INTO Employees 
             (FullName, Email, DepartmentID, PositionID, DateOfBirth, HireDate)
@@ -44,11 +69,11 @@ def add_employee():
             VALUES (:full, :e, :d, :p, :dob, :hire)
         """),
         {
-            "full": f"{data['first_name']} {data['last_name']}",
-            "e": data["email"],
-            "d": data["dept_id"],
-            "p": data["pos_id"],
-            "dob": data["dob"],
+            "full": full_name,
+            "e": email,
+            "d": dept_id,
+            "p": pos_id,
+            "dob": dob_val if dob_val else None,
             "hire": date.today()
         })
 
@@ -61,9 +86,9 @@ def add_employee():
         """),
         {
             "id": new_id,
-            "name": f"{data['first_name']} {data['last_name']}",
-            "dept": data["dept_id"],
-            "pos": data["pos_id"]
+            "name": full_name,
+            "dept": dept_id,
+            "pos": pos_id
         })
 
         trans_h.commit()
@@ -110,7 +135,7 @@ def update_employee(emp_id):
         check_pos = h_conn.execute(text("SELECT 1 FROM Positions WHERE PositionID = :p"), {"p": pos_id}).fetchone()
 
         if not check_dept or not check_pos:
-            return jsonify({"error": "DepartmentID or PositionID does not exist in HR system"}), 400 [cite: 84, 85, 102]
+            return jsonify({"error": "DepartmentID or PositionID does not exist in HR system"}), 400
 
         h_conn.execute(text("""
             UPDATE Employees 
@@ -129,11 +154,11 @@ def update_employee(emp_id):
 
         log_to_auth(1, "UPDATE", f"/employees/{emp_id}", "Success")
 
-        return jsonify({"message": "Update and Sync successful"}), 200 [cite: 102]
+        return jsonify({"message": "Update and Sync successful"}), 200
 
     except Exception as e:
         trans_p.rollback()
-        return jsonify({"error": str(e)}), 500 [cite: 102]
+        return jsonify({"error": str(e)}), 500
     
     finally:
         h_conn.close()

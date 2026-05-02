@@ -2,10 +2,11 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from login import verify_user  # Import the function directly
 from employees import get_all_employees, add_employee, delete_employee, get_employee_by_id, update_employee
-from Department_Position import get_departments, add_department, update_department, get_positions, add_position, update_position
+from Department_Position import get_departments, add_department, update_department, delete_department, get_positions, add_position, update_position
 from payroll_service import get_all_payroll, get_payroll_history, get_all_attendance, get_attendance_by_employee
 from Report import get_hr_report, get_payroll_report, get_dividend_report
 from Alerts import get_system_alerts
+from dashboard_api import get_total_employees, get_salary_over_time, get_employees_by_department, get_avg_salary_by_department, get_attendance_over_time
 
 
 
@@ -73,6 +74,9 @@ def create_dept(): return add_department()
 @app.route('/api/departments/<int:id>', methods=['PUT'])
 def edit_dept(id): return update_department(id)
 
+@app.route('/api/departments/<int:id>', methods=['DELETE'])
+def remove_dept(id): return delete_department(id)
+
 # Routes cho Positions [cite: 50]
 @app.route('/api/positions', methods=['GET'])
 def list_pos(): return get_positions()
@@ -111,6 +115,22 @@ def report_dividends(): return get_dividend_report()
 
 @app.route('/api/alerts', methods=['GET'])
 def alerts(): return get_system_alerts()
+
+# Dashboard APIs
+@app.route('/api/dashboard/total-employees', methods=['GET'])
+def total_employees(): return get_total_employees()
+
+@app.route('/api/dashboard/salary-over-time', methods=['GET'])
+def salary_over_time(): return get_salary_over_time()
+
+@app.route('/api/dashboard/employees-by-department', methods=['GET'])
+def employees_by_dept(): return get_employees_by_department()
+
+@app.route('/api/dashboard/avg-salary-by-department', methods=['GET'])
+def avg_salary_by_dept(): return get_avg_salary_by_department()
+
+@app.route('/api/dashboard/attendance-over-time', methods=['GET'])
+def attendance_over_time(): return get_attendance_over_time()
 
 if __name__ == "__main__":
     app.run(debug=True)

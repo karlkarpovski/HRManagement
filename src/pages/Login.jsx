@@ -1,36 +1,37 @@
 import { useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import api from '../api/axios';
 import '../styles/login.css';
 
 const AUTH_RULES = {
-  manager: {
+  'HR Manager': {
     label: 'HR Manager',
-    username: 'manager',
-    password: 'test',
-    description: 'Manage employees, departments, reports, and analytics.',
+    username: 'hr_An',
+    password: '123456',
+    description: 'Quản lý nhân viên, phòng ban, chức vụ và đồng bộ dữ liệu.',
   },
-  'payroll-manager': {
+  'Payroll Manager': {
     label: 'Payroll Manager',
-    username: 'pay01',
-    password: 'paypass',
-    description: 'Manage payroll runs, attendance checks, and payroll history.',
+    username: 'pay_binh',
+    password: '123456',
+    description: 'Quản lý bảng lương, chuyên cần và lịch sử lương.',
   },
-  employee: {
+  Employee: {
     label: 'Employee',
     username: 'employee',
-    password: 'test',
-    description: 'View your profile, schedule, and personal HR records.',
+    password: '123456',
+    description: 'Chỉ xem được hồ sơ cá nhân và phiếu lương của chính mình.',
   },
-  'system-admin': {
-    label: 'System Admin',
-    username: 'admin',
-    password: 'test',
-    description: 'Manage platform settings, access, and system configuration.',
+  Admin: {
+    label: 'Admin',
+    username: 'admin_hieu',
+    password: '123456',
+    description: 'Toàn quyền hệ thống, quản lý người dùng và xem Audit Logs.',
   },
 };
 
-const DEFAULT_ROLE = 'manager';
+const DEFAULT_ROLE = 'Employee';
 
 export default function Login({ onLoginSuccess }) {
   const [role, setRole] = useState(DEFAULT_ROLE);
@@ -40,40 +41,33 @@ export default function Login({ onLoginSuccess }) {
   const { isDark, toggleTheme } = useTheme();
 
   const handleSubmit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
+    setError('');
 
-  try {
-    const response = await fetch('http://localhost:5000/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setError('');
-
-      // lưu user nếu cần
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      // chuyển trang hoặc xử lý tiếp
-      onLoginSuccess?.(data.user);
-
-    } else {
-      setError(data.message);
+    if (!username || !password) {
+      setError('Vui lòng nhập đầy đủ tài khoản và mật khẩu');
+      return;
     }
 
-  } catch (err) {
-    console.error(err);
-    setError('Không kết nối được server');
-  }
-};
+    try {
+      const response = await api.post('/login', {
+        username: username,
+        password: password
+      });
+
+      if (response.data.status === 'success') {
+        const userData = response.data.user;
+
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // Gửi userData lên App - role từ DB (RoleName column)
+        onLoginSuccess(userData);
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || 'Kết nối đến máy chủ thất bại';
+      setError(message);
+    }
+  };
 
   const currentRole = AUTH_RULES[role] ?? AUTH_RULES[DEFAULT_ROLE];
 
@@ -82,45 +76,45 @@ export default function Login({ onLoginSuccess }) {
       <div className='login-shell'>
         <section className='login-hero' aria-hidden='true'>
           <div className='login-brand'>HR Management</div>
-          <p className='login-eyebrow'>Role-based portal</p>
-          <h1>Secure access for every team role.</h1>
+          <p className='login-eyebrow'>Hệ thống phân quyền</p>
+          <h1>Đăng nhập an toàn cho mọi vai trò.</h1>
           <p>
-            Sign in as an HR Manager, Payroll Manager, employee, or system admin from one consistent entry point.
+            Đăng nhập với tư cách Admin, HR Manager, Payroll Manager hoặc Employee.
           </p>
 
           <div className='login-features'>
             <div className='login-feature'>
               <span className='login-feature-dot' />
               <div>
-                <strong>{AUTH_RULES.manager.label}</strong>
-                <p>{AUTH_RULES.manager.description}</p>
+                <strong>{AUTH_RULES.Admin.label}</strong>
+                <p>{AUTH_RULES.Admin.description}</p>
               </div>
             </div>
             <div className='login-feature'>
               <span className='login-feature-dot' />
               <div>
-                <strong>{AUTH_RULES['payroll-manager'].label}</strong>
-                <p>{AUTH_RULES['payroll-manager'].description}</p>
+                <strong>{AUTH_RULES['HR Manager'].label}</strong>
+                <p>{AUTH_RULES['HR Manager'].description}</p>
               </div>
             </div>
             <div className='login-feature'>
               <span className='login-feature-dot' />
               <div>
-                <strong>{AUTH_RULES.employee.label}</strong>
-                <p>{AUTH_RULES.employee.description}</p>
+                <strong>{AUTH_RULES['Payroll Manager'].label}</strong>
+                <p>{AUTH_RULES['Payroll Manager'].description}</p>
               </div>
             </div>
             <div className='login-feature'>
               <span className='login-feature-dot' />
               <div>
-                <strong>{AUTH_RULES['system-admin'].label}</strong>
-                <p>{AUTH_RULES['system-admin'].description}</p>
+                <strong>{AUTH_RULES.Employee.label}</strong>
+                <p>{AUTH_RULES.Employee.description}</p>
               </div>
             </div>
           </div>
 
           <div className='login-note'>
-            Demo credentials are shown for the currently selected role.
+            Thông tin đăng nhập demo hiển thị theo role đã chọn.
           </div>
         </section>
 
@@ -129,7 +123,7 @@ export default function Login({ onLoginSuccess }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
               <div>
                 <span className='login-pill'>Protected access</span>
-                <h2>Sign in to continue</h2>
+                <h2>Đăng nhập để tiếp tục</h2>
               </div>
               <button
                 type='button'
@@ -152,12 +146,12 @@ export default function Login({ onLoginSuccess }) {
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}
               </button>
             </div>
-            <p>Select your role, then enter the corresponding credentials.</p>
+            <p>Chọn vai trò, sau đó nhập thông tin đăng nhập tương ứng.</p>
           </div>
 
           <form className='login-form' onSubmit={handleSubmit}>
             <label className='login-field'>
-              <span>Role</span>
+              <span>Vai trò</span>
               <select value={role} onChange={(event) => setRole(event.target.value)}>
                 {Object.entries(AUTH_RULES).map(([value, config]) => (
                   <option key={value} value={value}>
@@ -168,7 +162,7 @@ export default function Login({ onLoginSuccess }) {
             </label>
 
             <label className='login-field'>
-              <span>Username</span>
+              <span>Tên đăng nhập</span>
               <input
                 type='text'
                 value={username}
@@ -179,7 +173,7 @@ export default function Login({ onLoginSuccess }) {
             </label>
 
             <label className='login-field'>
-              <span>Password</span>
+              <span>Mật khẩu</span>
               <input
                 type='password'
                 value={password}
@@ -197,7 +191,7 @@ export default function Login({ onLoginSuccess }) {
           </form>
 
           <div className='login-role-summary'>
-            <span>Active role</span>
+            <span>Vai trò đã chọn</span>
             <strong>{currentRole.label}</strong>
             <p>{currentRole.description}</p>
           </div>

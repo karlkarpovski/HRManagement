@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/sidebar.css';
 
-const NAV_GROUPS = [
+const BASE_NAV_GROUPS = [
   {
     label: 'Employee Management',
     icon: 'TEAM',
@@ -21,8 +21,27 @@ const NAV_GROUPS = [
   },
 ];
 
-const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, onLogout }) => {
+const ADMIN_EXTRA_GROUPS = [
+  {
+    label: 'Payroll Management',
+    icon: 'PAY',
+    items: [
+      { label: 'Payroll Dashboard', id: 'payroll-dashboard' },
+    ],
+  },
+  {
+    label: 'System Administration',
+    icon: 'SYS',
+    items: [
+      { label: 'System Admin', id: 'system-admin' },
+    ],
+  },
+];
+
+const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, onLogout, userRole, isAdmin }) => {
   const [openGroup, setOpenGroup] = useState('Employee Management');
+
+  const navGroups = isAdmin ? [...BASE_NAV_GROUPS, ...ADMIN_EXTRA_GROUPS] : BASE_NAV_GROUPS;
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
@@ -30,11 +49,13 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, onLogout }) => 
         <button className='toggle-btn' onClick={() => setIsOpen((current) => !current)}>
           MENU
         </button>
-        <h1 className={`sidebar-title ${isOpen ? 'visible' : ''}`}>HRMS</h1>
+        <h1 className={`sidebar-title ${isOpen ? 'visible' : ''}`}>
+          HRMS {isAdmin ? '(Admin)' : ''}
+        </h1>
       </div>
 
       <div className='sidebar-menu'>
-        {NAV_GROUPS.map((group) => (
+        {navGroups.map((group) => (
           <div key={group.label}>
             <button className='menu-item' onClick={() => setOpenGroup((current) => (current === group.label ? '' : group.label))}>
               <span className='icon'>{group.icon}</span>
@@ -61,7 +82,7 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, onLogout }) => 
 
       <div className='sidebar-footer'>
         <div className='user-info'>
-          <p>Template Mode</p>
+          <p>{isAdmin ? 'Admin Mode' : 'Standard Mode'}</p>
           <p>v2.1.0</p>
         </div>
 
