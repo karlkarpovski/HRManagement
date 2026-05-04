@@ -1,0 +1,628 @@
+================================================================================
+International School - Duy Tan University
+Project Proposal Document
+Course: System Integration Practices
+================================================================================
+
+Project Title: Company X – Integrated HR & Payroll Management Dashboard
+Project Acronym: HRD
+Version: 2.0 (Updated with Actual Implementation)
+Date: 03/05/2026
+
+--------------------------------------------------------------------------------
+Team Members:
+--------------------------------------------------------------------------------
+1. Quang, Dang Nguyen Nhat - 29211144786
+2. Nguyet, Le Thi Thanh - 29201155172
+3. Quan, Doan Trung - 29219038600
+4. Phuc, Le Van - 29211159513
+5. Sang, Tran Quang - 29219037047
+6. Lam, Tran Ba Xuan - 29211159486
+
+Project Mentor: MSc. Nguyen Dang Quang Huy
+
+--------------------------------------------------------------------------------
+Project Information:
+--------------------------------------------------------------------------------
+Lead Institution: International School, Duy Tan University
+Start Date: 17 January 2026
+End Date: 07 May 2026
+
+--------------------------------------------------------------------------------
+DOCUMENT APPROVALS
+--------------------------------------------------------------------------------
+Mentor: Huy, Nguyen Dang Quang - Signature: _____ Date: _______
+Team Members: (Signatures and dates to be filled)
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+1. Introduction								5
+   1.1 Purpose of the Document (Mục đích tài liệu)				6
+   1.2 Scope of the Document (Phạm vi tài liệu)				6
+   1.3 Definitions, Acronyms, Abbreviations					6
+   1.4 References								6
+   1.5 Overview (Tổng quan cấu trúc tài liệu)				6
+
+2. Project Overview (Tổng quan dự án)						7
+   2.1 Background (bối cảnh dự án)						7
+   2.2 Business Motivation							7
+
+3. Business Problem Analysis							7
+
+4. Proposed Solution								8
+   Business Function Diagram							8
+   System Context Diagram							8
+
+5. Project Objectives								8
+   5.1 General Objective							8
+   5.2 Specific Objectives							8
+
+6. Project Scope, Assumptions, and Constraints					9
+
+7. System Architecture and Technology Stack					9
+
+8. Project Planning and Milestones						10
+
+9. Estimated Resources and Cost (for Educational Purposes)			10
+
+10. Expected Outcomes								11
+
+Appendices									12
+
+================================================================================
+1. INTRODUCTION
+================================================================================
+
+1.1 Purpose of the Document (Mục đích tài liệu)
+--------------------------------------------------------------------------------
+This Project Proposal Document serves as the foundational specification for the 
+Integrated HR & Payroll Management Dashboard project. The document aims to:
+
+- Define the project context, objectives, and development scope for Company X
+- Serve as a reference for academic evaluation by the instructor and assessment panel
+- Provide clear documentation for all stakeholders (simulated) including:
+  * Academic staff (instructor, evaluators)
+  * Development team members
+  * Simulated business stakeholders (Company X management)
+- Establish the system integration approach between HR and Payroll systems
+- Document technical architecture, functionality, and implementation roadmap
+
+1.2 Scope of the Document (Phạm vi tài liệu)
+--------------------------------------------------------------------------------
+This document covers:
+- Project background and business motivation
+- Detailed problem analysis of current HR and Payroll system separation
+- Comprehensive proposed solution with system architecture
+- Technology stack specification (Flask, React, SQL Server, MySQL)
+- Project objectives, scope, assumptions, and constraints
+- Implementation timeline and milestones
+- Resource estimation and expected outcomes
+
+This document does NOT include:
+- Detailed source code implementations
+- Complete database schema definitions
+- UI/UX design mockups (referenced separately)
+- Testing procedures and test cases (covered in later deliverables)
+- Deployment and production configuration details
+
+1.3 Definitions, Acronyms, Abbreviations
+--------------------------------------------------------------------------------
+Acronym			Definition
+--------------------------------------------------------------------------------
+HR			Human Resources
+REST			Representational State Transfer
+API			Application Programming Interface
+JWT			JSON Web Token
+CORS			Cross-Origin Resource Sharing
+SQL			Structured Query Language
+JSON			JavaScript Object Notation
+CRUD			Create, Read, Update, Delete
+SPA			Single Page Application
+UI			User Interface
+UX			User Experience
+HRMS			Human Resource Management System
+MUI			Material-UI (React component library)
+SRS			Software Requirements Specification
+BRD			Business Requirements Document
+BFD			Business Function Diagram
+
+1.4 References
+--------------------------------------------------------------------------------
+1. IEEE Std 830-1998, "IEEE Recommended Practice for Software Requirements Specifications"
+2. Flask Documentation - https://flask.palletsprojects.com/
+3. React Documentation - https://react.dev/
+4. Microsoft SQL Server Documentation
+5. MySQL Reference Manual
+6. Material-UI Documentation - https://mui.com/
+7. Vite Build Tool Documentation - https://vitejs.dev/
+
+1.5 Overview (Tổng quan cấu trúc tài liệu)
+--------------------------------------------------------------------------------
+This document is structured as follows:
+
+- Section 2 describes the project background, including the current state of 
+  Company X's separate HR and Payroll systems and the business motivation for integration.
+  
+- Section 3 provides a detailed analysis of business problems caused by system 
+  separation, including data duplication and synchronization issues.
+  
+- Section 4 presents the proposed integrated solution, including system architecture,
+  business function diagram, and system context diagram.
+  
+- Section 5 outlines project objectives, both general and specific, that guide 
+  the development process.
+  
+- Section 6 defines the project scope, including in-scope/out-of-scope items,
+  assumptions, and constraints.
+  
+- Section 7 details the system architecture and complete technology stack used
+  in the actual implementation (Flask, React, SQL Server, MySQL).
+  
+- Section 8 provides the project timeline with milestones aligned to the
+  academic calendar (9-week course structure).
+  
+- Section 9 estimates resources and costs for educational purposes.
+  
+- Section 10 lists expected learning outcomes and deliverables.
+
+================================================================================
+2. PROJECT OVERVIEW (TỔNG QUAN DỰ ÁN)
+================================================================================
+
+2.1 Background (Bối cảnh dự án)
+--------------------------------------------------------------------------------
+Company X currently operates two separate systems for managing human resources 
+and payroll functions:
+
+1. HR System (HUMAN_2025):
+   - Database: Microsoft SQL Server
+   - Manages: Employee records, departments, positions, attendance
+   - Users: HR Manager, System Administrator
+   
+2. Payroll System (PAYROLL):
+   - Database: MySQL
+   - Manages: Salary calculations, payroll history, dividends
+   - Users: Payroll Manager
+
+Current Problems:
+- Data Duplication: Employee information exists in both systems, leading to 
+  inconsistent records
+- No Data Synchronization: Changes in HR system don't automatically reflect 
+  in Payroll system
+- Manual Processes: Payroll calculations require manual data entry from HR records
+- Limited Reporting: No unified view of HR and payroll metrics
+- Access Control Issues: Different authentication systems for each platform
+- Attendance Data Silos: Attendance records in HR system not accessible to 
+  Payroll for salary calculations
+
+2.2 Business Motivation
+--------------------------------------------------------------------------------
+The CEO of Company X has identified critical inefficiencies in the current 
+system setup and mandated the development of an integrated dashboard. The key 
+motivations include:
+
+1. Operational Efficiency: Reduce manual data entry and administrative overhead
+2. Data Accuracy: Eliminate data duplication and ensure consistency across systems
+3. Real-time Insights: Provide unified reporting and analytics for better 
+   decision-making
+4. Role-based Access: Implement proper authentication and authorization for 
+   different user roles (Admin, HR Manager, Payroll Manager, Employee)
+5. Cost Reduction: Minimize errors in payroll processing that lead to financial losses
+6. Compliance: Ensure accurate record-keeping for auditing purposes
+
+================================================================================
+3. BUSINESS PROBLEM ANALYSIS
+================================================================================
+
+Problem			Description				Consequence
+--------------------------------------------------------------------------------
+Data Duplication	Employee data exists in both HR and Payroll	Inconsistent records,
+			systems with different identifiers		data conflicts
+
+No Synchronization	Updates in HR system don't reflect in 	Payroll errors,
+			Payroll system automatically		manual re-entry needed
+
+Separate Authentication	Different login systems for HR and Payroll	User frustration,
+								security gaps
+
+Attendance-Payroll Gap	Attendance data not linked to payroll	Incorrect salary
+			calculations				calculations
+
+Limited Reporting	No unified dashboard for HR and payroll	Poor decision-making,
+			metrics					no holistic view
+
+Manual Processes	Payroll staff manually transfer data	High error rate,
+			from HR system				time-consuming
+
+No Role-based Access	All users have similar access levels	Security risks,
+								compliance issues
+
+================================================================================
+4. PROPOSED SOLUTION
+================================================================================
+
+The proposed solution is an Integrated HR & Payroll Management Dashboard that 
+serves as a central integration layer between the SQL Server-based HR system 
+(HUMAN_2025) and the MySQL-based Payroll system.
+
+Key Features:
+1. Centralized Dashboard: Single interface for all user roles
+2. RESTful API Integration Layer: Flask-based backend connecting both databases
+3. Role-based Dashboards:
+   - System Admin: Full access to all modules
+   - HR Manager: Employee management, departments, attendance
+   - Payroll Manager: Payroll processing, salary reports
+   - Employee: Personal dashboard with limited access
+4. Real-time Data Synchronization: APIs fetch data from both systems on demand
+5. JWT-based Authentication: Secure, stateless authentication across all roles
+6. Integrated Reporting: Combined HR and payroll reports and analytics
+7. Alert System: Automated notifications for important events
+
+Technology Integration Approach:
+- Backend API (Python Flask) connects to SQL Server (pyodbc/pymssql) and 
+  MySQL (PyMySQL)
+- Frontend (React SPA) communicates with backend via RESTful APIs
+- JWT tokens for secure session management
+- CORS enabled for cross-origin requests between frontend and backend
+
+Business Function Diagram (PlantUML Code):
+```plantuml
+@startuml Business Function Diagram (BFD)
+left to right direction
+skinparam packageStyle rectangle
+
+actor "System Admin" as SA
+actor "HR Manager" as HRM
+actor "Payroll Manager" as PM
+actor "Employee" as Emp
+
+rectangle "Integrated HR & Payroll Dashboard" {
+    usecase "Login & Authenticate (JWT)" as UC1
+    usecase "Manage Employees (CRUD)" as UC2
+    usecase "Manage Departments" as UC3
+    usecase "Manage Positions" as UC4
+    usecase "Process Payroll" as UC5
+    usecase "View Payroll History" as UC6
+    usecase "Manage Attendance" as UC7
+    usecase "Generate HR Reports" as UC8
+    usecase "Generate Payroll Reports" as UC9
+    usecase "View Dashboard Analytics" as UC10
+    usecase "Manage System Alerts" as UC11
+    usecase "Manage User Roles" as UC12
+}
+
+' System Admin - Full Access
+SA --> UC1
+SA --> UC2
+SA --> UC3
+SA --> UC4
+SA --> UC5
+SA --> UC6
+SA --> UC7
+SA --> UC8
+SA --> UC9
+SA --> UC10
+SA --> UC11
+SA --> UC12
+
+' HR Manager Access
+HRM --> UC1
+HRM --> UC2
+HRM --> UC3
+HRM --> UC4
+HRM --> UC7
+HRM --> UC8
+HRM --> UC10
+
+' Payroll Manager Access
+PM --> UC1
+PM --> UC5
+PM --> UC6
+PM --> UC9
+PM --> UC10
+
+' Employee Access
+Emp --> UC1
+Emp --> UC6
+Emp --> UC10
+@enduml
+```
+
+System Context Diagram (PlantUML Code):
+```plantuml
+@startuml System Context Diagram (SCD)
+left to right direction
+skinparam packageStyle rectangle
+
+actor "System Admin" as SA
+actor "HR Manager" as HRM
+actor "Payroll Manager" as PM
+actor "Employee" as Emp
+
+rectangle "Integrated HR & Payroll Dashboard" as System {
+    component "Flask Backend API" as API
+    component "React Frontend" as FE
+}
+
+database "SQL Server (HUMAN_2025)" as HRDB {
+    note right of HRDB: HR Data: Employees, Departments, Positions, Attendance
+}
+
+database "MySQL (PAYROLL)" as PayDB {
+    note right of PayDB: Payroll Data: Salary, Payroll History, Dividends
+}
+
+' User to Frontend
+SA --> FE : Uses
+HRM --> FE : Uses
+PM --> FE : Uses
+Emp --> FE : Uses
+
+' Frontend to Backend
+FE --> API : RESTful API Requests (Axios)
+
+' Backend to Databases
+API --> HRDB : pyodbc/pymssql Queries
+API --> PayDB : PyMySQL Queries
+
+' Authentication Flow
+FE --> API : Login (JWT Token)
+API --> FE : Return JWT
+@enduml
+```
+
+================================================================================
+5. PROJECT OBJECTIVES
+================================================================================
+
+5.1 General Objective
+--------------------------------------------------------------------------------
+To design and develop an integrated HR & Payroll Management Dashboard that 
+unifies data from separate SQL Server and MySQL databases through RESTful APIs, 
+providing role-based access and comprehensive reporting for Company X.
+
+5.2 Specific Objectives
+--------------------------------------------------------------------------------
+1. Analyze the current HR and Payroll system architecture and identify 
+   integration requirements
+2. Design a system architecture that connects heterogeneous databases (SQL 
+   Server and MySQL) using Python Flask
+3. Develop RESTful APIs for CRUD operations on employees, departments, 
+   positions, payroll, and attendance
+4. Implement role-based authentication and authorization using JWT
+5. Build responsive frontend dashboards for different user roles (Admin, 
+   HR Manager, Payroll Manager, Employee) using React and Material-UI
+6. Create integrated reporting and analytics features with data 
+   visualization (Recharts)
+7. Implement system alerts and notifications for critical events
+8. Document the integration approach and system architecture following 
+   IEEE 830-1998 standards
+
+================================================================================
+6. PROJECT SCOPE, ASSUMPTIONS, AND CONSTRAINTS
+================================================================================
+
+IN-SCOPE (Phạm vi thực hiện):
+--------------------------------------------------------------------------------
+- Development of Flask-based RESTful API backend
+- Integration with SQL Server (HUMAN_2025) and MySQL (PAYROLL) databases
+- Implementation of JWT-based authentication system
+- Development of role-based React frontend (4 dashboard types)
+- Employee management module (CRUD operations)
+- Department and position management
+- Payroll processing and history tracking
+- Attendance management and tracking
+- Integrated reporting (HR reports, Payroll reports, Dividend reports)
+- Dashboard analytics (total employees, salary trends, department distribution)
+- System alerts and notifications
+- Responsive UI using Material-UI and Tailwind CSS
+
+OUT-OF-SCOPE (Không thực hiện):
+--------------------------------------------------------------------------------
+- Production deployment and hosting setup
+- Real financial transactions or actual payroll processing
+- Advanced business intelligence features beyond basic reporting
+- Mobile native applications (web-responsive only)
+- Integration with third-party services (email, SMS, etc.)
+- Data migration from existing systems (simulated data only)
+- Multi-tenant architecture
+- Advanced audit logging and compliance reporting
+
+ASSUMPTIONS (Giả định):
+--------------------------------------------------------------------------------
+- This is an educational project for academic purposes (Course: System Integration Practices)
+- Simulated data will be used (no real employee or payroll data)
+- Both databases (SQL Server and MySQL) are accessible via provided credentials
+- Development team has access to required development tools (VS Code, etc.)
+- Internet connectivity available for package installations (pip, npm)
+- Instructor and evaluators will act as simulated stakeholders
+
+CONSTRAINTS (Ràng buộc):
+--------------------------------------------------------------------------------
+- Project timeline: 9 weeks (17 January 2026 - 07 May 2026)
+- Educational purpose only - no production deployment required
+- Limited to two database systems (SQL Server + MySQL)
+- Must use specified technology stack (Flask, React, SQL Server, MySQL)
+- Team size: 6 students
+- Hardware constraints: Development on personal computers
+- No budget for paid services or tools (all tools must be free/open source)
+
+================================================================================
+7. SYSTEM ARCHITECTURE AND TECHNOLOGY STACK
+================================================================================
+
+Layer			Technology (2024-2025)		Description
+--------------------------------------------------------------------------------
+Backend API		Python Flask 3.0.0		Lightweight web framework for 
+			with Flask-CORS 4.0.0		RESTful API development
+					
+Database Layer		SQL Server (HUMAN_2025)	HR data: employees, departments,
+			via pyodbc 4.0.39		positions, attendance
+			+ pymssql 2.2.7
+			
+			MySQL (PAYROLL) via		Payroll data: salary, payroll
+			PyMySQL 1.1.0		history, dividends
+
+ORM			SQLAlchemy 2.0.23		Database ORM for Python
+
+Frontend Framework	React 18.3.1 with		Modern SPA framework with
+			TypeScript			type safety
+
+Build Tool		Vite 6.3.5 with		Fast build tool and dev server
+			@vitejs/plugin-react 4.7.0
+
+UI Library		Material-UI (MUI) 7.3.5	React component library for
+			+ Radix UI components		modern UI design
+			+ Tailwind CSS 4.1.12
+
+State Management	React Context API		Theme and authentication state
+			(ThemeContext)
+
+Routing		React Router 7.13.0		Client-side routing
+
+HTTP Client		Axios 1.15.2			Promise-based HTTP client
+
+Data Visualization	Recharts 2.15.2		Charting library for React
+
+Authentication		JWT (JSON Web Token)		Stateless authentication
+			+ bcrypt for password hashing
+
+Data Processing		Pandas 2.1.4 +		Data analysis and Excel export
+			openpyxl 3.1.2
+
+Development Tools	Visual Studio Code,		IDE and database management
+			SQL Server Management Studio,
+			Navicat
+
+Version Control		Git + GitHub		Source code management
+
+Testing		Python (manual testing)		API testing with test scripts
+			+ Browser testing
+
+================================================================================
+8. PROJECT PLANNING AND MILESTONES
+================================================================================
+
+Week	Case Study	Deliverables			Key Activities
+--------------------------------------------------------------------------------
+1-2	Case Study 1	Project Proposal,		Analyze problem and define 
+			Project Plan, BRD		objectives (This document)
+
+3-4	Case Study 2	SRS, UI/UX Design,		Design system model and 
+			Data Mapping			integration logic
+						Implement database schema
+						Design API endpoints
+
+5	Case Study 3	API Implementation		Develop backend APIs for 
+						CRUD operations
+						Connect to SQL Server
+						Connect to MySQL
+
+6	Case Study 4	Security Integration		Implement authentication 
+						& authorization (JWT)
+						Role-based access control
+
+7-9	Case Study 5	Final Dashboard		Integrate APIs, reports, 
+						and alerts
+						Build frontend dashboards
+						Testing and documentation
+
+================================================================================
+9. ESTIMATED RESOURCES AND COST (FOR EDUCATIONAL PURPOSES)
+================================================================================
+
+Resource			Description			Cost
+--------------------------------------------------------------------------------
+Development Tools	Visual Studio Code,		Free (Open Source/Community)
+			SQL Server Management Studio,	$0
+			Navicat (trial)
+
+Git Tool		Git, GitHub			Free
+			VS Code Git Extensions
+
+Programming Languages	Python, JavaScript,		Free (Open Source)
+			TypeScript
+
+Frameworks/Libraries	Flask, React, MUI,		Free (Open Source)
+			Tailwind CSS
+
+Databases		SQL Server Express,		Free (Express/Community)
+			MySQL Community
+
+API Testing		Browser, manual testing		Free
+
+Documentation		This document, Markdown		Free
+
+Total Estimated Cost: $0 (All open-source or free-tier tools for education)
+
+================================================================================
+10. EXPECTED OUTCOMES
+================================================================================
+
+Upon completing this project, students should be able to:
+
+1. Apply system integration models to real-world business scenarios involving 
+   heterogeneous database systems (SQL Server and MySQL)
+
+2. Design and develop RESTful APIs using Python Flask that connect to multiple 
+   database systems simultaneously
+
+3. Implement secure authentication and authorization mechanisms using JWT and 
+   role-based access control
+
+4. Build modern, responsive single-page applications using React, TypeScript, 
+   and Material-UI with proper state management
+
+5. Integrate disparate data sources to create unified dashboards with 
+   real-time data visualization (Recharts)
+
+6. Demonstrate understanding of full-stack development including frontend, 
+   backend, database integration, and API design
+
+7. Document system architecture and integration approaches following 
+   IEEE 830-1998 software documentation standards
+
+8. Work effectively in a team environment using version control (Git) and 
+   collaborative development practices
+
+9. Create comprehensive reporting solutions that combine data from multiple 
+   sources for business intelligence
+
+10. Implement alert and notification systems for proactive system monitoring
+
+================================================================================
+APPENDICES
+================================================================================
+
+Appendix A: Summary of CEO Memo
+--------------------------------------------------------------------------------
+The CEO of Company X has expressed concerns about:
+- Inefficiencies in current HR and Payroll operations
+- Data inconsistencies between separate systems
+- Manual processes causing delays and errors
+- Lack of unified reporting and analytics
+- Need for role-based access control
+
+The CEO mandates development of an integrated solution to address these issues 
+within the current fiscal year.
+
+Appendix B: Preliminary Gantt Chart
+--------------------------------------------------------------------------------
+[Student to include Gantt chart showing weeks 1-9 with deliverables]
+
+Appendix C: Initial System Context Diagram
+--------------------------------------------------------------------------------
+[Student to draw System Context Diagram showing:
+- External Entities: System Admin, HR Manager, Payroll Manager, Employee
+- System: Integrated HR & Payroll Dashboard
+- Data Flows: API requests/responses
+- External Systems: SQL Server (HUMAN_2025), MySQL (PAYROLL)]
+
+================================================================================
+DOCUMENT END
+================================================================================
+
+Note: This updated document reflects the actual implementation status as of 
+May 3, 2026. The project uses Python Flask backend with React TypeScript 
+frontend, integrating SQL Server and MySQL databases through RESTful APIs.

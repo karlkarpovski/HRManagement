@@ -40,11 +40,49 @@ const Reports = () => {
     fetchData(reportType);
   }, [reportType]);
 
-  const handleExport = (format) => {
-    const reportName = reportType === 'hr' ? 'Nhân Sự' : 
-                      reportType === 'payroll' ? 'Lương' :
-                      reportType === 'attendance' ? 'Chấm Công' : 'Cổ Tức';
-    alert(`📄 Xuất Báo Cáo ${reportName} dưới định dạng ${format}`);
+  const handleExport = async (format) => {
+    try {
+      const reportName = reportType === 'hr' ? 'hr' : 
+                        reportType === 'payroll' ? 'payroll' :
+                        reportType === 'dividends' ? 'dividends' : 'attendance';
+      
+      if (reportType === 'attendance') {
+        alert('Chức năng xuất báo cáo chấm công đang được phát triển');
+        return;
+      }
+      
+      // Gọi API export với responseType blob
+      const url = `/reports/${reportName}/export/${format.toLowerCase()}`;
+      const response = await api.get(url, {
+        responseType: 'blob'
+      });
+      
+      // Tạo blob URL và download
+      const blob = new Blob([response.data]);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      // Lấy filename từ header hoặc tạo mặc định
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `${reportName}_report.${format.toLowerCase() === 'excel' ? 'xlsx' : 'pdf'}`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch) {
+          filename = filenameMatch[1].replace(/"/g, '');
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+    } catch (err) {
+      console.error('Export error:', err);
+      alert('Có lỗi xảy ra khi xuất báo cáo');
+    }
   };
 
   const renderTable = (columns, data) => {
@@ -163,8 +201,17 @@ const Reports = () => {
         <Card title={`Lịch Sử Cổ Tức (${dividendReport.length} bản ghi)`}>
           {dividendReport.length > 0 ? (
             renderTable(
-              Object.keys(dividendReport[0] || {}).map((k) => ({ key: k, label: k })),
-              dividendReport
+              [
+                { key: 'FullName', label: 'Họ Tên' },
+                { key: 'PositionName', label: 'Vị Trí' },
+                { key: 'RoleName', label: 'Chức Vụ' },
+                { key: 'DividendAmount', label: 'Số Tiền Cổ Tức' },
+                { key: 'DividendDate', label: 'Ngày Trả' }
+              ],
+              dividendReport.map((r) => ({
+                ...r,
+                DividendAmount: Number(r.DividendAmount || 0).toLocaleString('vi-VN') + '₫',
+              }))
             )
           ) : (
             <p style={{ color: '#8ca0af', padding: 20, textAlign: 'center' }}>Không tìm thấy bản ghi cổ tức.</p>

@@ -50,13 +50,13 @@ def run_all_tests():
     print("Testing Authentication...")
     # Test with correct password
     results.append(test_api("POST", "/api/login", {
-        "username": "admin",
+        "username": "admin_hieu",
         "password": "123456"
     }, expected_status=200))  # Expect 200 with correct credentials
     
     # Test with wrong password
     results.append(test_api("POST", "/api/login", {
-        "username": "admin",
+        "username": "admin_hieu",
         "password": "wrongpassword"
     }, expected_status=401))  # Expect 401 with wrong credentials
     

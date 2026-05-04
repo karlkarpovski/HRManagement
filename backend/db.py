@@ -4,7 +4,7 @@ import datetime
 # --- CONNECTION STRINGS ---
 AUTH_URL = "mssql+pyodbc://quang:123456@localhost\\SQLEXPRESS/AUTH_DB?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes"
 HUMAN_URL = "mssql+pyodbc://quang:123456@localhost\\SQLEXPRESS/HUMAN?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes"
-PAYROLL_URL = "mysql+pymysql://quang:123456@localhost:3306/payroll"
+PAYROLL_URL = "mysql+pymysql://quang:123456@localhost:3306/payroll?charset=utf8mb4"
 
 # Create Engines
 engine_auth = create_engine(AUTH_URL)

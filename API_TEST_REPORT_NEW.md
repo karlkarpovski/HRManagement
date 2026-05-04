@@ -7,14 +7,14 @@
 
 | Endpoint | Method | Status | Result |
 |----------|--------|--------|--------|
-| /api/login | POST | 401 | FAIL |
+| /api/login | POST | 200 | PASS |
 | /api/login | POST | 401 | PASS |
 | /api/employees | GET | 200 | PASS |
 | /api/employees/1 | GET | 200 | PASS |
 | /api/departments | GET | 200 | PASS |
 | /api/departments | POST | 201 | PASS |
-| /api/departments/14 | PUT | 200 | PASS |
-| /api/departments/14 | DELETE | 200 | PASS |
+| /api/departments/19 | PUT | 200 | PASS |
+| /api/departments/19 | DELETE | 200 | PASS |
 | /api/positions | GET | 200 | PASS |
 | /api/positions | POST | 201 | PASS |
 | /api/payroll | GET | 200 | PASS |
@@ -28,5 +28,5 @@
 
 ## Summary
 - Total Tests: 18
-- Passed: 17
-- Failed: 1
+- Passed: 18
+- Failed: 0

@@ -4,7 +4,10 @@ from login import verify_user  # Import the function directly
 from employees import get_all_employees, add_employee, delete_employee, get_employee_by_id, update_employee
 from Department_Position import get_departments, add_department, update_department, delete_department, get_positions, add_position, update_position
 from payroll_service import get_all_payroll, get_payroll_history, get_all_attendance, get_attendance_by_employee
-from Report import get_hr_report, get_payroll_report, get_dividend_report
+from Report import (get_hr_report, get_payroll_report, get_dividend_report, 
+                    export_hr_report_excel, export_hr_report_pdf,
+                    export_payroll_report_excel, export_payroll_report_pdf,
+                    export_dividend_report_excel, export_dividend_report_pdf)
 from Alerts import get_system_alerts
 from dashboard_api import get_total_employees, get_salary_over_time, get_employees_by_department, get_avg_salary_by_department, get_attendance_over_time
 
@@ -95,7 +98,7 @@ def list_payroll():
 def payroll_history(id):
     return get_payroll_history(id)
 
-# Attendance Endpoints [cite: 233]
+
 @app.route('/api/attendance', methods=['GET'])
 def list_attendance():
     return get_all_attendance()
@@ -112,6 +115,27 @@ def report_payroll(): return get_payroll_report()
 
 @app.route('/api/reports/dividends', methods=['GET'])
 def report_dividends(): return get_dividend_report()
+
+# Export HR Report
+@app.route('/api/reports/hr/export/excel', methods=['GET'])
+def export_hr_excel(): return export_hr_report_excel()
+
+@app.route('/api/reports/hr/export/pdf', methods=['GET'])
+def export_hr_pdf(): return export_hr_report_pdf()
+
+# Export Payroll Report
+@app.route('/api/reports/payroll/export/excel', methods=['GET'])
+def export_payroll_excel(): return export_payroll_report_excel()
+
+@app.route('/api/reports/payroll/export/pdf', methods=['GET'])
+def export_payroll_pdf(): return export_payroll_report_pdf()
+
+# Export Dividend Report
+@app.route('/api/reports/dividends/export/excel', methods=['GET'])
+def export_dividend_excel(): return export_dividend_report_excel()
+
+@app.route('/api/reports/dividends/export/pdf', methods=['GET'])
+def export_dividend_pdf(): return export_dividend_report_pdf()
 
 @app.route('/api/alerts', methods=['GET'])
 def alerts(): return get_system_alerts()
